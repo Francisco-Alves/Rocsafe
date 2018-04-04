@@ -266,16 +266,23 @@ export default {
     this.getUsers()
   },
   methods: {
+    //Get Users BD
     async getUsers () {
       const response = await UsersService.fetchUsers()
       this.rows = response.data.users
     },
-
+    //Create User BD
+    async addUser () {
+      await UsersService.addUser(this.editedItem)
+      this.rows.push(this.editedItem)
+      console.log(this.editedItem)
+      this.$router.push({ name: 'Users' })
+    },
     addItem: function(i){
       alert('add!' + i.firstName)
-
     },
     editItem: function(user){
+      //Call Edit User
       this.editedIndex = this.rows.indexOf(user)
       this.editedItem = Object.assign({}, user)
       this.dialog = true
@@ -289,18 +296,12 @@ export default {
       this.editedItem.skills = user.skills
       this.editedItem.status = user.status
       this.editedItem.visibility = user.visibility
-
     },
     delItem: function(item){
+      //Call Delete User
       const index = this.rows.indexOf(item)
       confirm('Are you sure you want to delete this item?') && this.rows.splice(index, 1)
     },
-    async addUser () {
-  await UsersService.addUser(this.editedItem)
-  this.rows.push(this.editedItem)
-  console.log(this.editedItem)
-  this.$router.push({ name: 'Users' })
-},
     close () {
       this.dialog = false
       setTimeout(() => {
@@ -310,9 +311,11 @@ export default {
     },
 
     save () {
+      //Call Edit User
       if (this.editedIndex > -1) {
         Object.assign(this.rows[this.editedIndex], this.editedItem)
       } else {
+        //Call Create User
         this.addUser()
       }
       this.close()

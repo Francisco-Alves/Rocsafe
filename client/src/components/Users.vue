@@ -31,7 +31,7 @@
                 <v-select v-bind:items="countries" v-model="editedItem.nationality" label="Nacionalidade" autocomplete multiple chips></v-select>
                 <!--<v-card-text>{{editedItem.nationality}}</v-card-text>-->
               </v-flex>
-              <v-flex><v-select v-bind:items="countries" v-model="editedItem.languages" label="Línguas Faladas" autocomplete multiple chips></v-select></v-flex>
+              <v-flex><v-select v-bind:items="countries" v-model="editedItem.spokenLanguage" label="Línguas Faladas" autocomplete multiple chips></v-select></v-flex>
 
               <v-card-text>Data de Nascimento: {{editedItem.birthday}}<v-icon class="opc" v-on:click="date = !date">event</v-icon></v-card-text>
               <v-flex v-if="date">
@@ -93,8 +93,8 @@
           <td>{{ props.item.firstName }} {{props.item.lastName}}</td>
           <td>{{ props.item.gender }}</td>
           <td>{{ props.item.birthday }}</td>
-          <td><flag class="flags" v-for="nationality in props.item.nationality" :key="nationality.id" :iso="nationality"/></td>
-          <td><flag class="flags" v-for="language in props.item.languages" :key="language.id" :iso="language"/></td>
+          <td><flag class="flags" v-for="nationality in props.item.nationality" :key="nationality.id" :iso="nationality.language"/></td>
+          <td><flag class="flags" v-for="language in props.item.spokenLanguage" :key="language.id" :iso="language"/></td>
           <td><span v-for="skill in props.item.skills">{{ skill }}</span></td>
           <!-- Coluna Status -->
           <td v-if="props.item.status == 'available'">
@@ -213,16 +213,16 @@ export default {
         },
         {
           text: 'Línguas Faladas',
-          value: 'languages',
+          value: 'spokenLanguage',
           width: '12%',
           type: 'array'
-        },
+        },/*
         {
           text: 'Habilidades',
           value: 'skills',
           width: '10%',
           type: 'array'
-        },
+        },*/
         {
           text: 'Status',
           value: 'status',
@@ -254,7 +254,7 @@ export default {
         gender: '',
         birthday: '',
         nationality: [],
-        languages: [],
+        spokenLanguage: [],
         skills: [],
         status: '',
         visibility: false
@@ -305,7 +305,7 @@ export default {
     close () {
       this.dialog = false
       setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedItem = Object.assign({}, null)
         this.editedIndex = -1
       }, 300)
     },

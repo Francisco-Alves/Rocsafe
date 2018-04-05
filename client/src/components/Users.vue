@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-dialog v-model="dialog" max-width="500px">
-      <v-btn color="primary" dark slot="activator" class="mb-2">Novo Item</v-btn>
+      <v-btn color="primary" dark slot="activator" class="mb-2">New User</v-btn>
       <v-card>
         <v-card-title>
           <span class="headline"></span>
@@ -11,29 +11,29 @@
             <v-layout wrap>
               <v-container>
                 <v-flex style="display:inline-block;">
-                  <span>Ativo</span>
+                  <span>Active</span>
                   <input type="checkbox" id="active" v-model="editedItem.active">
                 </v-flex>
                 <v-flex style="display:inline-block;">
-                  <span>Visível</span>
+                  <span>Visibility</span>
                   <input type="checkbox" id="visible" v-model="editedItem.visibility">
                 </v-flex>
               </v-container>
               <v-flex>
-                <v-text-field label="Primeiro Nome" v-model="editedItem.firstName"></v-text-field>
+                <v-text-field label="First Name" v-model="editedItem.firstName"></v-text-field>
               </v-flex>
               <v-flex>
-                <v-text-field label="Apelido" v-model="editedItem.lastName"></v-text-field>
+                <v-text-field label="Last Name" v-model="editedItem.lastName"></v-text-field>
               </v-flex>
 
 
               <v-flex>
-                <v-select v-bind:items="nationality" v-model="editedItem.nationality" label="Nacionalidade" autocomplete multiple chips></v-select>
+                <v-select v-bind:items="nationality" v-model="editedItem.nationality" label="Nationality" autocomplete multiple chips></v-select>
                 <!--<v-card-text>{{editedItem.nationality}}</v-card-text>-->
               </v-flex>
-              <v-flex><v-select v-bind:items="languages" v-model="editedItem.spokenLanguage" label="Línguas Faladas" autocomplete multiple chips></v-select></v-flex>
+              <v-flex><v-select v-bind:items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" autocomplete multiple chips></v-select></v-flex>
 
-              <v-card-text>Data de Nascimento: {{editedItem.birthday}}<v-icon class="opc" v-on:click="date = !date">event</v-icon></v-card-text>
+              <v-card-text>Birthdate: {{editedItem.birthday}}<v-icon class="opc" v-on:click="date = !date">event</v-icon></v-card-text>
               <v-flex v-if="date">
                 <v-date-picker
                 width="290"
@@ -45,29 +45,29 @@
               <v-container><v-select v-bind:items="staffSkills" v-model="editedItem.skills" label="Skills" autocomplete multiple chips></v-select>
               </v-container>
               <v-flex style="display:inline-block">
-                <span>Género</span>
+                <span>Gender</span>
                 <br>
-                <input type="radio" id="male" value="M" v-model="editedItem.gender">
-                <label for="male">Masculino</label>
+                <input type="radio" id="male" value="gender-male" v-model="editedItem.gender">
+                <label for="male">Male</label>
                 <br>
-                <input type="radio" id="female" value="F" v-model="editedItem.gender">
-                <label for="female">Feminino</label>
+                <input type="radio" id="female" value="gender-female" v-model="editedItem.gender">
+                <label for="female">Female</label>
               </v-flex>
               <v-flex style="display:inline-block">
 
-                <span>Selecione o Estado</span>
+                <span>Select Status</span>
                 <select style="border:1px solid lightgrey; cursor:pointer; display:inline-block" v-model="editedItem.status">
-                  <option disabled value="">Estado: </option>
-                  <option value="available">Available</option>
-                  <option value="assigned">Assigned</option>
-                  <option value="suspended">Suspended</option>
-                  <option value="inactive">Inactive</option>
+                  <option disabled value="">Status: </option>
+                  <option value="!!!">Active</option>
+                  <option value="!!!">Inactive</option>
+                  <option value="!!!">Blocked</option>
                 </select>
+                <!--
                 phone
                 Email
                 photo
                 nativelanguage
-                systemLanguage
+                systemLanguage-->
               </v-flex>
             </v-layout>
           </v-container>
@@ -82,12 +82,12 @@
     <v-data-table :headers="columns" :items="rows">
       <template slot="items" slot-scope="props">
         <tr>
-          <!-- Coluna Detalhes -->
+          <!-- Details Column -->
           <td v-on:click="props.item.details = !props.item.details">
             <v-icon v-if="props.item.details" title="Hide" class="opc">keyboard_arrow_up</v-icon>
             <v-icon v-else title="Show More" class="opc">keyboard_arrow_down</v-icon>
           </td>
-          <!-- Coluna Active -->
+          <!-- Active Column -->
           <td v-if="props.item.active">
             <v-icon title="Active">visibility</v-icon>
           </td>
@@ -100,7 +100,7 @@
           <td><flag class="flags" v-for="nationality in props.item.nationality" :key="nationality.id" :iso="nationality.value"/> {{props.item.nationality.text}} </td>
           <td><flag class="flags" v-for="language in props.item.spokenLanguage" :key="language.id" :iso="language.value"/></td>
           <td><span v-for="skill in props.item.skills">{{ skill }}</span></td>
-          <!-- Coluna Status -->
+          <!-- Status Column -->
           <td v-if="props.item.status == 'available'">
             <v-icon title="Active" class="opc">done</v-icon>
           </td>
@@ -111,7 +111,7 @@
             <v-icon title="Blocked" class="opc">not_interested</v-icon>
           </td>
 
-          <!-- Coluna Visibility -->
+          <!-- Visibility Column -->
           <td v-if="props.item.visibility">
             <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Visible" class="opc">visibility</v-icon>
           </td>
@@ -119,7 +119,7 @@
             <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Non Visible" class="opc">visibility_off</v-icon>
           </td>
 
-          <!-- Coluna Options -->
+          <!-- Options Column -->
           <td>
             <!-- <v-icon v-on:click="addItem(props.item)" title="Adicionar" class="opc">add_box</v-icon>--> <!-- add, add circle, add circle outline, delete sweep, room(localização), location on-->
             <v-icon v-on:click="editItem(props.item)" title="Edit" class="opc">create</v-icon>

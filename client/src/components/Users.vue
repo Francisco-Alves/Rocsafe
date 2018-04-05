@@ -28,10 +28,10 @@
 
 
               <v-flex>
-                <v-select v-bind:items="countries" v-model="editedItem.nationality" label="Nacionalidade" autocomplete multiple chips></v-select>
+                <v-select v-bind:items="nationality" v-model="editedItem.nationality" label="Nacionalidade" autocomplete multiple chips></v-select>
                 <!--<v-card-text>{{editedItem.nationality}}</v-card-text>-->
               </v-flex>
-              <v-flex><v-select v-bind:items="countries" v-model="editedItem.spokenLanguage" label="Línguas Faladas" autocomplete multiple chips></v-select></v-flex>
+              <v-flex><v-select v-bind:items="languages" v-model="editedItem.spokenLanguage" label="Línguas Faladas" autocomplete multiple chips></v-select></v-flex>
 
               <v-card-text>Data de Nascimento: {{editedItem.birthday}}<v-icon class="opc" v-on:click="date = !date">event</v-icon></v-card-text>
               <v-flex v-if="date">
@@ -170,8 +170,9 @@ export default {
       title: "Tabela",
       dialog : false,
       date: false,
-      nationality: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovak', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
-      skills:[{text:'Químico', value:'chemical'},{text:'Biológico', value:'bio'},{text:'Radioativo', value:'radioactive'},{text:'Nuclear', value:'nuclear'},{text:'Explosivo', value:'explosive'}],
+      nationality: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovakian', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
+      languages: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovakian', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
+      skills:[{text:'Chemical', value:'chemical'},{text:'Biological', value:'biological'},{text:'Radiological', value:'radiological'},{text:'Nuclear', value:'nuclear'},{text:'Explosive', value:'explosive'}],
       columns: [
         {
           text: '',
@@ -256,9 +257,9 @@ export default {
         photo: '',
         nationality: [],
         skills: [],
-        nativeLanguage: [languages],
-        spokenLanguage: [languages],
-        systemLanguage: [languages],
+        nativeLanguage: [this.languages],
+        spokenLanguage: [this.languages],
+        systemLanguage: [this.languages],
         status: '',
         visibility: false
       },

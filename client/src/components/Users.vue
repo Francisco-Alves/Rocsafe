@@ -170,7 +170,7 @@ export default {
       title: "Tabela",
       dialog : false,
       date: false,
-      countries: [{text:'Alemanha', value:'de'},{text:'Áustria', value:'at'},{text:'Bélgica', value:'be'},{text:'Bulgária', value:'bg'},{text:'Chipre', value:'cy'},{text:'Croácia', value:'hr'},{text:'Dinamarca', value:'dk'},{text:'Eslováquia', value:'sk'},{text:'Eslovénia', value:'si'},{text:'Espanha', value:'es'},{text:'Estónia', value:'ee'},{text:'Finlândia', value:'fi'},{text:'França', value:'fr'},{text:'Grécia', value:'gr'},{text:'Hungria', value:'hu'},{text:'Irlanda', value:'ie'},{text:'Itália', value:'it'},{text:'Letónia', value:'lv'},{text:'Lituânia', value:'lt'},{text:'Luxemburgo', value:'lu'},{text:'Malta', value:'mt'},{text:'Países Baixos', value:'nl'},{text:'Polónia', value:'pl'},{text:'Portugal', value:'pt'},{text:'Reino Unido', value:'gb'},{text:'República Checa', value:'cz'},{text:'Roménia', value:'ro'},{text:'Suécia', value:'se'}],
+      nationality: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovak', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
       skills:[{text:'Químico', value:'chemical'},{text:'Biológico', value:'bio'},{text:'Radioativo', value:'radioactive'},{text:'Nuclear', value:'nuclear'},{text:'Explosivo', value:'explosive'}],
       columns: [
         {
@@ -186,19 +186,19 @@ export default {
           width: '7%'
         },
         {
-          text: 'Nome Completo',
+          text: 'Name',
           value: 'name',
           type: 'text',
           width: '17%'
         },
         {
-          text: 'Género',
+          text: 'Gender',
           value: 'gender',
           type: 'text',
           width: '7%'
         },
         {
-          text: 'Data de Nascimento',
+          text: 'Birthdate',
           value: 'birthday',
           type: 'date',
           inputFormat: 'YYYY-MM-DD',
@@ -206,23 +206,23 @@ export default {
           width: '12%'
         },
         {
-          text: 'Nacionalidade',
+          text: 'Nationality',
           value: 'nationality',
           width: '12%',
           type: 'array'
         },
         {
-          text: 'Línguas Faladas',
+          text: 'Spoken Languages',
           value: 'spokenLanguage',
           width: '12%',
           type: 'array'
-        },/*
+        },
         {
-          text: 'Habilidades',
+          text: 'Skills',
           value: 'skills',
           width: '10%',
           type: 'array'
-        },*/
+        },
         {
           text: 'Status',
           value: 'status',
@@ -230,13 +230,13 @@ export default {
           //type: 'text'
         },
         {
-          text: 'Visibilidade',
+          text: 'Visible',
           value: 'visibility',
           type: 'boolean',
           width: '10%'
         },
         {
-          text: 'Opções',
+          text: 'Options',
           value: 'opc',
           sortable: false,
           width: '10%'
@@ -244,8 +244,6 @@ export default {
         }
       ],
       rows: [
-        //{id:0, active:true, firstName:'John', lastName:'John', gender:'M', birthday: '2012/02/01', nationality: ['it'],
-        //languages: ['it', 'pt'], skills: [], status: 'available', visibility: true, opc: '', details:false},
       ],
       editedItem: {
         firstName: '',
@@ -253,9 +251,14 @@ export default {
         active: false,
         gender: '',
         birthday: '',
+        phone: 0,
+        email: '',
+        photo: '',
         nationality: [],
-        spokenLanguage: [],
         skills: [],
+        nativeLanguage: [languages],
+        spokenLanguage: [languages],
+        systemLanguage: [languages],
         status: '',
         visibility: false
       },

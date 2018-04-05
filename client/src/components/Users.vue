@@ -42,7 +42,7 @@
                 ></v-date-picker>
               </v-flex>
 
-              <v-container><v-select v-bind:items="skills" v-model="editedItem.skills" label="Skills" autocomplete multiple chips></v-select>
+              <v-container><v-select v-bind:items="staffSkills" v-model="editedItem.skills" label="Skills" autocomplete multiple chips></v-select>
               </v-container>
               <v-flex style="display:inline-block">
                 <span>Género</span>
@@ -63,7 +63,11 @@
                   <option value="suspended">Suspended</option>
                   <option value="inactive">Inactive</option>
                 </select>
-
+                phone
+                Email
+                photo
+                nativelanguage
+                systemLanguage
               </v-flex>
             </v-layout>
           </v-container>
@@ -80,49 +84,46 @@
         <tr>
           <!-- Coluna Detalhes -->
           <td v-on:click="props.item.details = !props.item.details">
-            <v-icon v-if="props.item.details" title="Esconder" class="opc">keyboard_arrow_up</v-icon>
-            <v-icon v-else title="Mostrar Mais" class="opc">keyboard_arrow_down</v-icon>
+            <v-icon v-if="props.item.details" title="Hide" class="opc">keyboard_arrow_up</v-icon>
+            <v-icon v-else title="Show More" class="opc">keyboard_arrow_down</v-icon>
           </td>
           <!-- Coluna Active -->
           <td v-if="props.item.active">
-            <v-icon title="Ativo">visibility</v-icon>
+            <v-icon title="Active">visibility</v-icon>
           </td>
           <td v-else>
-            <v-icon title="Inativo">visibility_off</v-icon>
+            <v-icon title="Inactive">visibility_off</v-icon>
           </td>
           <td>{{ props.item.firstName }} {{props.item.lastName}}</td>
           <td>{{ props.item.gender }}</td>
-          <td>{{ props.item.birthday }}</td>
-          <td><flag class="flags" v-for="nationality in props.item.nationality" :key="nationality.id" :iso="nationality.language"/></td>
-          <td><flag class="flags" v-for="language in props.item.spokenLanguage" :key="language.id" :iso="language"/></td>
+          <td>{{ props.item.birthday | formatDate}}</td>
+          <td><flag class="flags" v-for="nationality in props.item.nationality" :key="nationality.id" :iso="nationality.value"/> {{props.item.nationality.text}} </td>
+          <td><flag class="flags" v-for="language in props.item.spokenLanguage" :key="language.id" :iso="language.value"/></td>
           <td><span v-for="skill in props.item.skills">{{ skill }}</span></td>
           <!-- Coluna Status -->
           <td v-if="props.item.status == 'available'">
-            <v-icon title="Disponível" class="opc">done</v-icon>
+            <v-icon title="Active" class="opc">done</v-icon>
           </td>
           <td v-else-if="props.item.status == 'assigned'">
-            <v-icon title="Atribuído" class="opc">spellcheck</v-icon>
+            <v-icon title="Inactive" class="opc">spellcheck</v-icon>
           </td>
           <td v-else-if="props.item.status == 'suspended'">
-            <v-icon title="Suspenso" class="opc">not_interested</v-icon>
-          </td>
-          <td v-else-if="props.item.status == 'inactive'">
-            <v-icon title="Inativo" class="opc">error</v-icon>
+            <v-icon title="Blocked" class="opc">not_interested</v-icon>
           </td>
 
           <!-- Coluna Visibility -->
           <td v-if="props.item.visibility">
-            <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Alterar" class="opc">visibility</v-icon>
+            <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Visible" class="opc">visibility</v-icon>
           </td>
           <td v-else>
-            <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Alterar" class="opc">visibility_off</v-icon>
+            <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Non Visible" class="opc">visibility_off</v-icon>
           </td>
 
           <!-- Coluna Options -->
           <td>
             <!-- <v-icon v-on:click="addItem(props.item)" title="Adicionar" class="opc">add_box</v-icon>--> <!-- add, add circle, add circle outline, delete sweep, room(localização), location on-->
-            <v-icon v-on:click="editItem(props.item)" title="Editar" class="opc">create</v-icon>
-            <v-icon v-on:click="delItem(props.item)" title="Remover" class="opc">delete</v-icon>
+            <v-icon v-on:click="editItem(props.item)" title="Edit" class="opc">create</v-icon>
+            <v-icon v-on:click="delItem(props.item)" title="Delete" class="opc">delete</v-icon>
           </td>
         </tr>
 
@@ -131,18 +132,18 @@
             <img class="profile_img" height="200px" src="@/assets/profile.png">
             <v-flex>
               <span class="details_content">
-                Nome: {{props.item.firstName}}
+                First Name: {{props.item.firstName}}
               </span>
               <span class="details_content">
-                Apelido: {{props.item.lastName}}
+                Last Name: {{props.item.lastName}}
               </span>
               <span class="details_content">
-                Língua Materna: <flag class="flags" :iso="props.item.nationality"/>
+                Native Language: <flag class="flags" :iso="props.item.nativeLanguage"/>
               </span>
             </v-flex>
             <v-flex>
               <span class="details_content">
-                Nº Telemóvel: {{props.item.phone}}
+                Phone: {{props.item.phone}}
               </span>
               <span class="details_content">
                 Email: {{props.item.email}}
@@ -150,7 +151,7 @@
             </v-flex>
             <v-flex>
               <span class="description">
-                Descrição: {{props.item.description}} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet.!
+                Description: {{props.item.description}} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet.!
               </span>
             </v-flex>
           </td>
@@ -172,7 +173,7 @@ export default {
       date: false,
       nationality: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovakian', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
       languages: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovakian', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
-      skills:[{text:'Chemical', value:'chemical'},{text:'Biological', value:'biological'},{text:'Radiological', value:'radiological'},{text:'Nuclear', value:'nuclear'},{text:'Explosive', value:'explosive'}],
+      staffSkills:[{text:'Chemical', value:'chemical'},{text:'Biological', value:'biological'},{text:'Radiological', value:'radiological'},{text:'Nuclear', value:'nuclear'},{text:'Explosive', value:'explosive'}],
       columns: [
         {
           text: '',
@@ -202,8 +203,6 @@ export default {
           text: 'Birthdate',
           value: 'birthday',
           type: 'date',
-          inputFormat: 'YYYY-MM-DD',
-          outputFormat: 'DD-MM-YYYY',
           width: '12%'
         },
         {
@@ -255,15 +254,15 @@ export default {
         phone: 0,
         email: '',
         photo: '',
-        nationality: [],
-        skills: [],
+        nationality: [this.nationality],
+        skills: [this.staffSkills],
         nativeLanguage: [this.languages],
         spokenLanguage: [this.languages],
         systemLanguage: [this.languages],
         status: '',
         visibility: false
       },
-      editedIndex: -1
+      editedIndex: ""
     };
   },
   mounted () {
@@ -287,36 +286,27 @@ export default {
     },
     editItem: function(user){
       //Call Edit User
-      this.editedIndex = this.rows.indexOf(user)
+      this.editedIndex = user._id
       this.editedItem = Object.assign({}, user)
       this.dialog = true
-      this.editedItem.firstName = user.firstName
-      this.editedItem.lastName = user.lastName
-      this.editedItem.active = user.active
-      this.editedItem.gender = user.gender
-      this.editedItem.birthday = user.birthday
-      this.editedItem.nationality = user.nationality
-      this.editedItem.languages = user.languages
-      this.editedItem.skills = user.skills
-      this.editedItem.status = user.status
-      this.editedItem.visibility = user.visibility
     },
-    delItem: function(item){
+    delItem: function(user){
       //Call Delete User
-      const index = this.rows.indexOf(item)
+      const index = user._id
+      //Fazer Delete !!!
       confirm('Are you sure you want to delete this item?') && this.rows.splice(index, 1)
     },
     close () {
       this.dialog = false
       setTimeout(() => {
         this.editedItem = Object.assign({}, null)
-        this.editedIndex = -1
+        this.editedIndex = ""
       }, 300)
     },
 
     save () {
       //Call Edit User
-      if (this.editedIndex > -1) {
+      if (this.editedIndex != "") {
         Object.assign(this.rows[this.editedIndex], this.editedItem)
       } else {
         //Call Create User

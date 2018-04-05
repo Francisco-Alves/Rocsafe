@@ -262,7 +262,7 @@ export default {
         status: '',
         visibility: false
       },
-      editedIndex: ""
+      editedIndex: []
     };
   },
   mounted () {
@@ -281,7 +281,11 @@ export default {
       console.log(this.editedItem)
       this.$router.push({ name: 'Users' })
     },
-	//Edit User BD
+	  //Edit User BD
+    async updateUser () {
+      await UsersService.updateUser(this.editedItem)
+      //this.$router.push({ name: 'Users' })
+    },
     addItem: function(i){
       alert('add!' + i.firstName)
     },
@@ -301,13 +305,15 @@ export default {
       this.dialog = false
       setTimeout(() => {
         this.editedItem = Object.assign({}, null)
-        this.editedIndex = ""
+        this.editedIndex = []
       }, 300)
     },
 
     save () {
       //Call Edit User
-      if (this.editedIndex != "") {
+      if (this.editedIndex != []) {
+        //console.log(this.editedItem);
+        this.updateUser()
         Object.assign(this.rows[this.editedIndex], this.editedItem)
       } else {
         //Call Create User

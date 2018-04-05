@@ -281,6 +281,7 @@ export default {
       console.log(this.editedItem)
       this.$router.push({ name: 'Users' })
     },
+	//Edit User BD
     addItem: function(i){
       alert('add!' + i.firstName)
     },

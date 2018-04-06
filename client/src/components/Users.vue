@@ -201,7 +201,7 @@ export default {
         gender: '',
         birthday: '',
         phone: 0,
-        email: '',
+        email: 'Francisco',
         photo: '',
         nationality: [this.nationality],
         skills: [this.staffSkills],

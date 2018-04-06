@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-dialog v-model="dialog" max-width="500px">
-      <v-btn color="primary" dark slot="activator" class="mb-2">Novo Item</v-btn>
+      <v-btn color="primary" dark slot="activator" class="mb-2">New User</v-btn>
       <v-card>
         <v-card-title>
           <span class="headline"></span>
@@ -11,29 +11,29 @@
             <v-layout wrap>
               <v-container>
                 <v-flex style="display:inline-block;">
-                  <span>Ativo</span>
+                  <span>Active</span>
                   <input type="checkbox" id="active" v-model="editedItem.active">
                 </v-flex>
                 <v-flex style="display:inline-block;">
-                  <span>Visível</span>
+                  <span>Visibility</span>
                   <input type="checkbox" id="visible" v-model="editedItem.visibility">
                 </v-flex>
               </v-container>
               <v-flex>
-                <v-text-field label="Primeiro Nome" v-model="editedItem.firstName"></v-text-field>
+                <v-text-field label="First Name" v-model="editedItem.firstName"></v-text-field>
               </v-flex>
               <v-flex>
-                <v-text-field label="Apelido" v-model="editedItem.lastName"></v-text-field>
+                <v-text-field label="Last Name" v-model="editedItem.lastName"></v-text-field>
               </v-flex>
 
 
               <v-flex>
-                <v-select v-bind:items="nationality" v-model="editedItem.nationality" label="Nacionalidade" autocomplete multiple chips></v-select>
+                <v-select v-bind:items="nationality" v-model="editedItem.nationality" label="Nationality" autocomplete multiple chips></v-select>
                 <!--<v-card-text>{{editedItem.nationality}}</v-card-text>-->
               </v-flex>
-              <v-flex><v-select v-bind:items="languages" v-model="editedItem.spokenLanguage" label="Línguas Faladas" autocomplete multiple chips></v-select></v-flex>
+              <v-flex><v-select v-bind:items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" autocomplete multiple chips></v-select></v-flex>
 
-              <v-card-text>Data de Nascimento: {{editedItem.birthday}}<v-icon class="opc" v-on:click="date = !date">event</v-icon></v-card-text>
+              <v-card-text>Birthdate: {{editedItem.birthday | formatDate}}<v-icon class="opc" v-on:click="date = !date">event</v-icon></v-card-text>
               <v-flex v-if="date">
                 <v-date-picker
                 width="290"
@@ -45,19 +45,19 @@
               <v-container><v-select v-bind:items="staffSkills" v-model="editedItem.skills" label="Skills" autocomplete multiple chips></v-select>
               </v-container>
               <v-flex style="display:inline-block">
-                <span>Género</span>
+                <span>Gender</span>
                 <br>
-                <input type="radio" id="male" value="M" v-model="editedItem.gender">
-                <label for="male">Masculino</label>
+                <input type="radio" id="male" value="gender-male" v-model="editedItem.gender">
+                <label for="male">Male</label>
                 <br>
-                <input type="radio" id="female" value="F" v-model="editedItem.gender">
-                <label for="female">Feminino</label>
+                <input type="radio" id="female" value="gender-female" v-model="editedItem.gender">
+                <label for="female">Female</label>
               </v-flex>
               <v-flex style="display:inline-block">
 
-                <span>Selecione o Estado</span>
+                <span>Choose Status</span>
                 <select style="border:1px solid lightgrey; cursor:pointer; display:inline-block" v-model="editedItem.status">
-                  <option disabled value="">Estado: </option>
+                  <option disabled value="">Status: </option>
                   <option value="available">Available</option>
                   <option value="assigned">Assigned</option>
                   <option value="suspended">Suspended</option>
@@ -82,12 +82,12 @@
     <v-data-table :headers="columns" :items="rows">
       <template slot="items" slot-scope="props">
         <tr>
-          <!-- Coluna Detalhes -->
+          <!-- Show Details Column -->
           <td v-on:click="props.item.details = !props.item.details">
             <v-icon v-if="props.item.details" title="Hide" class="opc">keyboard_arrow_up</v-icon>
             <v-icon v-else title="Show More" class="opc">keyboard_arrow_down</v-icon>
           </td>
-          <!-- Coluna Active -->
+          <!-- Active Column -->
           <td v-if="props.item.active">
             <v-icon title="Active">visibility</v-icon>
           </td>
@@ -100,18 +100,21 @@
           <td><flag class="flags" v-for="nationality in props.item.nationality" :key="nationality.id" :iso="nationality.value"/> {{props.item.nationality.text}} </td>
           <td><flag class="flags" v-for="language in props.item.spokenLanguage" :key="language.id" :iso="language.value"/></td>
           <td><span v-for="skill in props.item.skills">{{ skill }}</span></td>
-          <!-- Coluna Status -->
+          <!-- Status Column -->
           <td v-if="props.item.status == 'available'">
-            <v-icon title="Active" class="opc">done</v-icon>
+            <v-icon title="Available" class="opc">done</v-icon>
           </td>
           <td v-else-if="props.item.status == 'assigned'">
-            <v-icon title="Inactive" class="opc">spellcheck</v-icon>
+            <v-icon title="Assigned" class="opc">spellcheck</v-icon>
           </td>
           <td v-else-if="props.item.status == 'suspended'">
-            <v-icon title="Blocked" class="opc">not_interested</v-icon>
+            <v-icon title="Suspended" class="opc">not_interested</v-icon>
+          </td>
+          <td v-else-if="props.item.status == 'inactive'">
+            <v-icon title="Inactive" class="opc">error</v-icon>
           </td>
 
-          <!-- Coluna Visibility -->
+          <!-- Visibility Column -->
           <td v-if="props.item.visibility">
             <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Visible" class="opc">visibility</v-icon>
           </td>
@@ -119,7 +122,7 @@
             <v-icon v-on:click="props.item.visibility = !props.item.visibility" title="Non Visible" class="opc">visibility_off</v-icon>
           </td>
 
-          <!-- Coluna Options -->
+          <!-- Options Column -->
           <td>
             <!-- <v-icon v-on:click="addItem(props.item)" title="Adicionar" class="opc">add_box</v-icon>--> <!-- add, add circle, add circle outline, delete sweep, room(localização), location on-->
             <v-icon v-on:click="editItem(props.item)" title="Edit" class="opc">create</v-icon>
@@ -127,6 +130,7 @@
           </td>
         </tr>
 
+        <!-- Details Section -->
         <tr v-if="props.item.details">
           <td colspan="11">
             <img class="profile_img" height="200px" src="@/assets/profile.png">
@@ -175,73 +179,17 @@ export default {
       languages: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovakian', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
       staffSkills:[{text:'Chemical', value:'chemical'},{text:'Biological', value:'biological'},{text:'Radiological', value:'radiological'},{text:'Nuclear', value:'nuclear'},{text:'Explosive', value:'explosive'}],
       columns: [
-        {
-          text: '',
-          value: 'details',
-          type: 'boolean',
-          sortable: false
-        },
-        {
-          text: 'Active',
-          value: 'active',
-          type: 'boolean',
-          width: '7%'
-        },
-        {
-          text: 'Name',
-          value: 'name',
-          type: 'text',
-          width: '17%'
-        },
-        {
-          text: 'Gender',
-          value: 'gender',
-          type: 'text',
-          width: '7%'
-        },
-        {
-          text: 'Birthdate',
-          value: 'birthday',
-          type: 'date',
-          width: '12%'
-        },
-        {
-          text: 'Nationality',
-          value: 'nationality',
-          width: '12%',
-          type: 'array'
-        },
-        {
-          text: 'Spoken Languages',
-          value: 'spokenLanguage',
-          width: '12%',
-          type: 'array'
-        },
-        {
-          text: 'Skills',
-          value: 'skills',
-          width: '10%',
-          type: 'array'
-        },
-        {
-          text: 'Status',
-          value: 'status',
-          width: '7%'
-          //type: 'text'
-        },
-        {
-          text: 'Visible',
-          value: 'visibility',
-          type: 'boolean',
-          width: '10%'
-        },
-        {
-          text: 'Options',
-          value: 'opc',
-          sortable: false,
-          width: '10%'
-          //type: 'text'
-        }
+        {text: '',value: 'details',type: 'boolean',sortable: false},
+        {text: 'Active',value: 'active',type: 'boolean',width: '7%'},
+        {text: 'Name',value: 'name',type: 'text',width: '17%'},
+        {text: 'Gender',value: 'gender',type: 'text',width: '7%'},
+        {text: 'Birthdate',value: 'birthday',type: 'date',width: '12%'},
+        {text: 'Nationality',value: 'nationality',width: '12%',type: 'array'},
+        {text: 'Spoken Languages',value: 'spokenLanguage',width: '12%',type: 'array'},
+        {text: 'Skills',value: 'skills',width: '10%',type: 'array'},
+        {text: 'Status',value: 'status',width: '7%', type: 'text'},
+        {text: 'Visible',value: 'visibility',type: 'boolean',width: '10%'},
+        {text: 'Options',value: 'opc',sortable: false,width: '10%'}
       ],
       rows: [
       ],

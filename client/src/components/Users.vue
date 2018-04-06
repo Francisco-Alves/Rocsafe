@@ -68,6 +68,7 @@
                 photo
                 nativelanguage
                 systemLanguage
+                Francisco
               </v-flex>
             </v-layout>
           </v-container>

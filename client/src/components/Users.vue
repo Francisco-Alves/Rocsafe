@@ -256,7 +256,7 @@ export default {
         this.editedIndex = []
       }, 300)
     },
-
+    //Save user btn function
     save () {
       //Call Edit User
       if (this.editedIndex != []) {

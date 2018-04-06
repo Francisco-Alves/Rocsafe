@@ -201,7 +201,11 @@ export default {
         gender: '',
         birthday: '',
         phone: 0,
+<<<<<<< HEAD
         email: 'Hugo',
+=======
+        email: 'Francisco',
+>>>>>>> 848443ca6922f525d0f61cc3564bb3f14b31b864
         photo: '',
         nationality: [this.nationality],
         skills: [this.staffSkills],

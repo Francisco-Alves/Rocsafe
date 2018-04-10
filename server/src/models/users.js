@@ -25,6 +25,10 @@ var userStatus = new Schema ({
 });
 
 var userSchema = new Schema ({
+  username: {
+    type: String,
+    required: true
+  },
   firstName: {
     type: String,
     required: true
@@ -56,27 +60,27 @@ var userSchema = new Schema ({
     required: false
   },
   nationality: {
-    type: [languages],
+    type: [],
     required: false
   },
   skills: {
-    type: [staffSkills],
+    type: [],
     required: false
   },
   nativeLanguage: {
-    type: [languages],
+    type: [],
     required: false /*true*/
   },
   spokenLanguage: {
-    type: [languages],
+    type: [],
     required: false /*true*/
   },
   systemLanguage: {
-    type: [languages],
+    type: [],
     required: false /*true*/
   },
   status: {
-    type: [userStatus],
+    type: String,
     required: false /*true*/
   },
   details: {

@@ -9,65 +9,63 @@
         <v-card-text>
           <v-container grid-list-md>
             <v-layout wrap>
-              <v-container>
-                <v-flex style="display:inline-block;">
-                  <span>Active</span>
-                  <input type="checkbox" id="active" v-model="editedItem.active">
-                </v-flex>
-                <v-flex style="display:inline-block;">
-                  <span>Visibility</span>
-                  <input type="checkbox" id="visible" v-model="editedItem.visibility">
-                </v-flex>
-              </v-container>
-              <v-flex>
+              <v-flex class="half_line">
+                <v-checkbox label="Active" v-model="editedItem.active"></v-checkbox>
+              </v-flex>
+              <v-flex class="half_line">
+                <v-checkbox label="Visibility" v-model="editedItem.visibility"></v-checkbox>
+              </v-flex>
+              <v-flex class="half_line">
                 <v-text-field label="First Name" v-model="editedItem.firstName"></v-text-field>
               </v-flex>
-              <v-flex>
+              <v-flex class="half_line">
                 <v-text-field label="Last Name" v-model="editedItem.lastName"></v-text-field>
               </v-flex>
-
-
-              <v-flex>
-                <v-select v-bind:items="nationality" v-model="editedItem.nationality" label="Nationality" autocomplete multiple chips></v-select>
-                <!--<v-card-text>{{editedItem.nationality}}</v-card-text>-->
+              <v-flex class="full_line">
+                <v-select :items="languages" v-model="editedItem.nationality" label="Nationality" class="input-group--focused" item-text="name" item-value="languages"></v-select>
               </v-flex>
-              <v-flex><v-select v-bind:items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" autocomplete multiple chips></v-select></v-flex>
-
-              <v-card-text>Birthdate: {{editedItem.birthday}}<v-icon class="opc" v-on:click="date = !date">event</v-icon></v-card-text>
-              <v-flex v-if="date">
-                <v-date-picker
-                width="290"
-                class="mt-3"
-                v-model="editedItem.birthday"
-                ></v-date-picker>
+              <v-flex class="full_line">
+                <v-select :items="languages" v-model="editedItem.nativeLanguage" label="Native Language" class="input-group--focused" item-text="name" item-value="languages"></v-select>
               </v-flex>
-
-              <v-container><v-select v-bind:items="staffSkills" v-model="editedItem.skills" label="Skills" autocomplete multiple chips></v-select>
-              </v-container>
-              <v-flex style="display:inline-block">
-                <span>Gender</span>
-                <br>
-                <input type="radio" id="male" value="gender-male" v-model="editedItem.gender">
-                <label for="male">Male</label>
-                <br>
-                <input type="radio" id="female" value="gender-female" v-model="editedItem.gender">
-                <label for="female">Female</label>
+              <v-flex class="full_line">
+                <v-select v-bind:items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" item-text="name" item-value="languages" autocomplete multiple chips></v-select>
               </v-flex>
-              <v-flex style="display:inline-block">
-
-                <span>Select Status</span>
-                <select style="border:1px solid lightgrey; cursor:pointer; display:inline-block" v-model="editedItem.status">
-                  <option disabled value="">Status: </option>
-                  <option value="!!!">Active</option>
-                  <option value="!!!">Inactive</option>
-                  <option value="!!!">Blocked</option>
-                </select>
-                <!--
-                phone
-                Email
-                photo
-                nativelanguage
-                systemLanguage-->
+              <v-flex class="full_line">
+                <v-select :items="systemLanguages" v-model="editedItem.systemLanguage" label="System Language" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+              </v-flex>
+              <v-flex class="full_line">
+                <v-card-text>
+                  <v-icon class="opc" v-on:click="date = !date">event</v-icon>
+                  Birthdate: {{editedItem.birthday | formatDate}}
+                </v-card-text>
+                <v-flex v-if="date">
+                  <v-date-picker
+                  width="290"
+                  class="mt-3"
+                  v-model="editedItem.birthday"
+                  ></v-date-picker>
+                </v-flex>
+              </v-flex>
+              <v-flex class="full_line">
+                <v-select v-bind:items="staffSkills" v-model="editedItem.skills" label="Skills" item-text="name" item-value="staffSkills" autocomplete multiple chips></v-select>
+              </v-flex>
+              <v-flex class="half_line">
+                Gender:
+                <v-radio-group v-model="editedItem.gender">
+                  <v-radio v-for="n in gender" :key="n" :label="`${n}`" :value="n"></v-radio>
+                </v-radio-group>
+              </v-flex>
+              <v-flex class="half_line">
+                <v-select :items="status" v-model="editedItem.status" label="Status" class="input-group--focused"></v-select>
+              </v-flex>
+              <v-flex class="half_line">
+                <v-text-field label="Phone" v-model="editedItem.phone"></v-text-field>
+              </v-flex>
+              <v-flex class="half_line">
+                <v-text-field label="Email" v-model="editedItem.email"></v-text-field>
+              </v-flex>
+              <v-flex class="half_line">
+                <v-card-media :src="'https://rocsafe.inov.pt/img/users/' + editedItem.username + '.jpg'" height="300px"></v-card-media>
               </v-flex>
             </v-layout>
           </v-container>
@@ -82,7 +80,7 @@
     <v-data-table :headers="columns" :items="rows">
       <template slot="items" slot-scope="props">
         <tr>
-          <!-- Details Column -->
+          <!-- Show Details Column -->
           <td v-on:click="props.item.details = !props.item.details">
             <v-icon v-if="props.item.details" title="Hide" class="opc">keyboard_arrow_up</v-icon>
             <v-icon v-else title="Show More" class="opc">keyboard_arrow_down</v-icon>
@@ -97,18 +95,21 @@
           <td>{{ props.item.firstName }} {{props.item.lastName}}</td>
           <td>{{ props.item.gender }}</td>
           <td>{{ props.item.birthday | formatDate}}</td>
-          <td><flag class="flags" v-for="nationality in props.item.nationality" :key="nationality.id" :iso="nationality.value"/> {{props.item.nationality.text}} </td>
-          <td><flag class="flags" v-for="language in props.item.spokenLanguage" :key="language.id" :iso="language.value"/></td>
-          <td><span v-for="skill in props.item.skills">{{ skill }}</span></td>
+          <td><span v-for="nationality in props.item.nationality"><flag class="flags" :iso="nationality.abbr"/> {{props.item.nationality.name}}</span></td>
+          <td><span v-for="language in props.item.spokenLanguage"><flag class="flags" :iso="language.abbr"/></span></td>
+          <td><span v-for="skill in props.item.skills">{{ skill.icon }}</span></td>
           <!-- Status Column -->
-          <td v-if="props.item.status == 'available'">
-            <v-icon title="Active" class="opc">done</v-icon>
+          <td v-if="props.item.status == 'Available'">
+            <v-icon title="Available" class="opc">done</v-icon>
           </td>
-          <td v-else-if="props.item.status == 'assigned'">
-            <v-icon title="Inactive" class="opc">spellcheck</v-icon>
+          <td v-else-if="props.item.status == 'Assigned'">
+            <v-icon title="Assigned" class="opc">spellcheck</v-icon>
           </td>
-          <td v-else-if="props.item.status == 'suspended'">
-            <v-icon title="Blocked" class="opc">not_interested</v-icon>
+          <td v-else-if="props.item.status == 'Suspended'">
+            <v-icon title="Suspended" class="opc">not_interested</v-icon>
+          </td>
+          <td v-else-if="props.item.status == 'Inactive'">
+            <v-icon title="Inactive" class="opc">error</v-icon>
           </td>
 
           <!-- Visibility Column -->
@@ -127,9 +128,10 @@
           </td>
         </tr>
 
+        <!-- Details Section -->
         <tr v-if="props.item.details">
           <td colspan="11">
-            <img class="profile_img" height="200px" src="@/assets/profile.png">
+            <v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
             <v-flex>
               <span class="details_content">
                 First Name: {{props.item.firstName}}
@@ -168,80 +170,26 @@ export default {
   name: 'users',
   data () {
     return {
-      title: "Tabela",
+      title: 'Tabela',
       dialog : false,
       date: false,
-      nationality: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovakian', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
-      languages: [{text:'German', value:'de'},{text:'Austrian', value:'at'},{text:'Belgian', value:'be'},{text:'Bulgarian', value:'bg'},{text:'Cypriot', value:'cy'},{text:'Croatian', value:'hr'},{text:'Danish', value:'dk'},{text:'Slovakian', value:'sk'},{text:'Slovene', value:'si'},{text:'Spanish', value:'es'},{text:'Estonian', value:'ee'},{text:'Finnish', value:'fi'},{text:'French', value:'fr'},{text:'Greek', value:'gr'},{text:'Hungarian', value:'hu'},{text:'Irish', value:'ie'},{text:'Italian', value:'it'},{text:'Latvian', value:'lv'},{text:'Lithuanian', value:'lt'},{text:'Luxembourgish', value:'lu'},{text:'Maltese', value:'mt'},{text:'Dutch', value:'nl'},{text:'Polish', value:'pl'},{text:'Portuguese', value:'pt'},{text:'British', value:'gb'},{text:'Czech', value:'cz'},{text:'Romanian', value:'ro'},{text:'Swedish', value:'se'}],
-      staffSkills:[{text:'Chemical', value:'chemical'},{text:'Biological', value:'biological'},{text:'Radiological', value:'radiological'},{text:'Nuclear', value:'nuclear'},{text:'Explosive', value:'explosive'}],
+      gender:['Male','Female','Unknown'],
+      status:['Available', 'Assigned', 'Suspended', 'Inactive'],
+      systemLanguages: [{name:'German', abbr:'de'},{name:'Austrian', abbr:'at'},{name:'Belgian', abbr:'be'},{name:'Bulgarian', abbr:'bg'},{name:'Cypriot', abbr:'cy'},{name:'Croatian', abbr:'hr'},{name:'Danish', abbr:'dk'},{name:'Slovakian', abbr:'sk'},{name:'Slovene', abbr:'si'},{name:'Spanish', abbr:'es'},{name:'Estonian', abbr:'ee'},{name:'Finnish', abbr:'fi'},{name:'French', abbr:'fr'},{name:'Greek', abbr:'gr'},{name:'Hungarian', abbr:'hu'},{name:'Irish', abbr:'ie'},{name:'Italian', abbr:'it'},{name:'Latvian', abbr:'lv'},{name:'Lithuanian', abbr:'lt'},{name:'Luxembourgish', abbr:'lu'},{name:'Maltese', abbr:'mt'},{name:'Dutch', abbr:'nl'},{name:'Polish', abbr:'pl'},{name:'Portuguese', abbr:'pt'},{name:'British', abbr:'gb'},{name:'Czech', abbr:'cz'},{name:'Romanian', abbr:'ro'},{name:'Swedish', abbr:'se'}],
+      languages: [{name:'German', abbr:'de'},{name:'Austrian', abbr:'at'},{name:'Belgian', abbr:'be'},{name:'Bulgarian', abbr:'bg'},{name:'Cypriot', abbr:'cy'},{name:'Croatian', abbr:'hr'},{name:'Danish', abbr:'dk'},{name:'Slovakian', abbr:'sk'},{name:'Slovene', abbr:'si'},{name:'Spanish', abbr:'es'},{name:'Estonian', abbr:'ee'},{name:'Finnish', abbr:'fi'},{name:'French', abbr:'fr'},{name:'Greek', abbr:'gr'},{name:'Hungarian', abbr:'hu'},{name:'Irish', abbr:'ie'},{name:'Italian', abbr:'it'},{name:'Latvian', abbr:'lv'},{name:'Lithuanian', abbr:'lt'},{name:'Luxembourgish', abbr:'lu'},{name:'Maltese', abbr:'mt'},{name:'Dutch', abbr:'nl'},{name:'Polish', abbr:'pl'},{name:'Portuguese', abbr:'pt'},{name:'British', abbr:'gb'},{name:'Czech', abbr:'cz'},{name:'Romanian', abbr:'ro'},{name:'Swedish', abbr:'se'},{name:'Unknown', abbr:''}],
+      staffSkills:[{name:'Chemical', icon:'chemical'},{name:'Biological', icon:'biological'},{name:'Radiological', icon:'radiological'},{name:'Nuclear', icon:'nuclear'},{name:'Explosive', icon:'explosive'}],
       columns: [
-        {
-          text: '',
-          value: 'details',
-          type: 'boolean',
-          sortable: false
-        },
-        {
-          text: 'Active',
-          value: 'active',
-          type: 'boolean',
-          width: '7%'
-        },
-        {
-          text: 'Name',
-          value: 'name',
-          type: 'text',
-          width: '17%'
-        },
-        {
-          text: 'Gender',
-          value: 'gender',
-          type: 'text',
-          width: '7%'
-        },
-        {
-          text: 'Birthdate',
-          value: 'birthday',
-          type: 'date',
-          width: '12%'
-        },
-        {
-          text: 'Nationality',
-          value: 'nationality',
-          width: '12%',
-          type: 'array'
-        },
-        {
-          text: 'Spoken Languages',
-          value: 'spokenLanguage',
-          width: '12%',
-          type: 'array'
-        },
-        {
-          text: 'Skills',
-          value: 'skills',
-          width: '10%',
-          type: 'array'
-        },
-        {
-          text: 'Status',
-          value: 'status',
-          width: '7%'
-          //type: 'text'
-        },
-        {
-          text: 'Visible',
-          value: 'visibility',
-          type: 'boolean',
-          width: '10%'
-        },
-        {
-          text: 'Options',
-          value: 'opc',
-          sortable: false,
-          width: '10%'
-          //type: 'text'
-        }
+        {text: '',value: 'details',type: 'boolean',sortable: false},
+        {text: 'Active',value: 'active',type: 'boolean',width: '7%'},
+        {text: 'Name',value: 'name',type: 'text',width: '17%'},
+        {text: 'Gender',value: 'gender',type: 'text',width: '7%'},
+        {text: 'Birthdate',value: 'birthday',type: 'date',width: '12%'},
+        {text: 'Nationality',value: 'nationality',width: '12%',type: 'array'},
+        {text: 'Spoken Languages',value: 'spokenLanguage',width: '12%',type: 'array'},
+        {text: 'Skills',value: 'skills',width: '10%',type: 'array'},
+        {text: 'Status',value: 'status',width: '7%', type: 'text'},
+        {text: 'Visible',value: 'visibility',type: 'boolean',width: '10%'},
+        {text: 'Options',value: 'opc',sortable: false,width: '10%'}
       ],
       rows: [
       ],
@@ -254,15 +202,16 @@ export default {
         phone: 0,
         email: '',
         photo: '',
-        nationality: [this.nationality],
-        skills: [this.staffSkills],
-        nativeLanguage: [this.languages],
-        spokenLanguage: [this.languages],
-        systemLanguage: [this.languages],
+        nationality: [],
+        skills: [],
+        nativeLanguage: [],
+        spokenLanguage: [],
+        systemLanguage: [],
         status: '',
+        username: '',
         visibility: false
       },
-      editedIndex: ""
+      editedIndex: []
     };
   },
   mounted () {
@@ -280,6 +229,11 @@ export default {
       this.rows.push(this.editedItem)
       console.log(this.editedItem)
       this.$router.push({ name: 'Users' })
+    },
+    //Edit User BD
+    async updateUser () {
+      await UsersService.updateUser(this.editedItem)
+      //this.$router.push({ name: 'Users' })
     },
     addItem: function(i){
       alert('add!' + i.firstName)
@@ -300,13 +254,15 @@ export default {
       this.dialog = false
       setTimeout(() => {
         this.editedItem = Object.assign({}, null)
-        this.editedIndex = ""
+        this.editedIndex = []
       }, 300)
     },
-
+    //Save user btn function
     save () {
       //Call Edit User
-      if (this.editedIndex != "") {
+      if (this.editedIndex != []) {
+        //console.log(this.editedItem);
+        this.updateUser()
         Object.assign(this.rows[this.editedIndex], this.editedItem)
       } else {
         //Call Create User
@@ -355,5 +311,13 @@ export default {
 }
 .flags{
   margin-right:5px;
+}
+.half_line{
+  display:inline-block;
+  width:50%;
+}
+.full_line{
+  display:inline-block;
+  width:100%;
 }
 </style>

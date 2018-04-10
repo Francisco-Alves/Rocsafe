@@ -8,7 +8,7 @@ export default {
     return Api().post('users', params)
   },
   updateUser(params) {
-   return Api().put('users/' + params.id, params)
+   return Api().put('users/' + params._id, params)
  },
   getUser (params) {
     return Api().get('user/' + params.id)

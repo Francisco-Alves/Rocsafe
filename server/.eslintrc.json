@@ -1,0 +1,16 @@
+{
+	"env":
+	{
+		"es6": true,
+		"node": true
+	},
+	"extends": "eslint:recommended",
+	"rules":
+	{
+		"indent": ["warn", "tab"],
+		"quotes": ["warn", "single"],
+		"semi": ["warn", "always"],
+		"no-console": "off"
+	}
+}
+

@@ -1,0 +1,29 @@
+{
+	"env":
+	{
+		"browser": true,
+		"es6": true
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:vue/recommended"
+	],
+	"parserOptions":
+	{
+		"sourceType": "module"
+	},
+	"plugins": [
+		"vue"
+	],
+	"rules":
+	{
+		"indent": ["warn", "tab"],
+		"quotes": ["warn", "single"],
+		"semi": ["warn", "always"],
+		"no-console": "off",
+		"vue/attributes-order": "warn",
+		"vue/html-indent": ["warn", "tab"],
+		"vue/html-self-closing": "off",
+		"vue/max-attributes-per-line": "off"
+	}
+}

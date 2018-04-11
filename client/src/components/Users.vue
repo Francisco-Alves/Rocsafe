@@ -87,10 +87,10 @@
           </td>
           <!-- Active Column -->
           <td v-if="props.item.active">
-            <v-icon title="Active">visibility</v-icon>
+            <v-icon title="Active">check_circle</v-icon>
           </td>
           <td v-else>
-            <v-icon title="Inactive">visibility_off</v-icon>
+            <v-icon title="Inactive">cancel</v-icon>
           </td>
           <td>{{ props.item.firstName }} {{props.item.lastName}}</td>
           <td>{{ props.item.gender }}</td>
@@ -131,7 +131,10 @@
         <!-- Details Section -->
         <tr v-if="props.item.details">
           <td colspan="11">
-            <v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
+            <v-container>
+            <v-flex class="profile_img">
+              <v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
+            </v-flex>
             <v-flex>
               <span class="details_content">
                 First Name: {{props.item.firstName}}
@@ -156,6 +159,10 @@
                 Description: {{props.item.description}} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet.!
               </span>
             </v-flex>
+            </v-container>
+            <v-container>
+              Missions
+            </v-container>
           </td>
         </tr>
       </template>
@@ -179,17 +186,17 @@ export default {
       languages: [{name:'German', abbr:'de'},{name:'Austrian', abbr:'at'},{name:'Belgian', abbr:'be'},{name:'Bulgarian', abbr:'bg'},{name:'Cypriot', abbr:'cy'},{name:'Croatian', abbr:'hr'},{name:'Danish', abbr:'dk'},{name:'Slovakian', abbr:'sk'},{name:'Slovene', abbr:'si'},{name:'Spanish', abbr:'es'},{name:'Estonian', abbr:'ee'},{name:'Finnish', abbr:'fi'},{name:'French', abbr:'fr'},{name:'Greek', abbr:'gr'},{name:'Hungarian', abbr:'hu'},{name:'Irish', abbr:'ie'},{name:'Italian', abbr:'it'},{name:'Latvian', abbr:'lv'},{name:'Lithuanian', abbr:'lt'},{name:'Luxembourgish', abbr:'lu'},{name:'Maltese', abbr:'mt'},{name:'Dutch', abbr:'nl'},{name:'Polish', abbr:'pl'},{name:'Portuguese', abbr:'pt'},{name:'British', abbr:'gb'},{name:'Czech', abbr:'cz'},{name:'Romanian', abbr:'ro'},{name:'Swedish', abbr:'se'},{name:'Unknown', abbr:''}],
       staffSkills:[{name:'Chemical', icon:'chemical'},{name:'Biological', icon:'biological'},{name:'Radiological', icon:'radiological'},{name:'Nuclear', icon:'nuclear'},{name:'Explosive', icon:'explosive'}],
       columns: [
-        {text: '',value: 'details',type: 'boolean',sortable: false},
-        {text: 'Active',value: 'active',type: 'boolean',width: '7%'},
-        {text: 'Name',value: 'name',type: 'text',width: '17%'},
-        {text: 'Gender',value: 'gender',type: 'text',width: '7%'},
-        {text: 'Birthdate',value: 'birthday',type: 'date',width: '12%'},
-        {text: 'Nationality',value: 'nationality',width: '12%',type: 'array'},
-        {text: 'Spoken Languages',value: 'spokenLanguage',width: '12%',type: 'array'},
-        {text: 'Skills',value: 'skills',width: '10%',type: 'array'},
-        {text: 'Status',value: 'status',width: '7%', type: 'text'},
-        {text: 'Visible',value: 'visibility',type: 'boolean',width: '10%'},
-        {text: 'Options',value: 'opc',sortable: false,width: '10%'}
+        {text: '', value: 'details', type: 'boolean', sortable: false},
+        {text: 'Active', value: 'active', type: 'boolean', width: '7%'},
+        {text: 'Name', value: 'name', type: 'text', width: '17%'},
+        {text: 'Gender', value: 'gender', type: 'text', width: '7%'},
+        {text: 'Birthdate', value: 'birthday', type: 'date', width: '12%'},
+        {text: 'Nationality', value: 'nationality', width: '12%', type: 'array'},
+        {text: 'Spoken Languages', value: 'spokenLanguage', width: '12%', type: 'array'},
+        {text: 'Skills', value: 'skills', width: '10%', type: 'array'},
+        {text: 'Status', value: 'status', width: '7%', type: 'text'},
+        {text: 'Visible', value: 'visibility', type: 'boolean', width: '10%'},
+        {text: 'Options', value: 'opc', width: '10%', sortable: false}
       ],
       rows: [
       ],
@@ -284,10 +291,9 @@ export default {
   height:150px;
 }
 .profile_img{
-  width:150px;
+  width:180px;
   height:200px;
   float:left;
-  display:block;
   margin-right:40px;
 }
 .details_content{

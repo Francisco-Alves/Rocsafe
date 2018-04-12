@@ -22,6 +22,9 @@
 								<v-text-field label="Last Name" v-model="editedItem.lastName"></v-text-field>
 							</v-flex>
 							<v-flex class="full_line">
+								<v-text-field label="Username" v-model="editedItem.username"></v-text-field>
+							</v-flex>
+							<v-flex class="full_line">
 								<v-select :items="languages" v-model="editedItem.nationality" label="Nationality" class="input-group--focused" item-text="name" item-value="languages"></v-select>
 							</v-flex>
 							<v-flex class="full_line">
@@ -36,7 +39,7 @@
 							<v-flex class="full_line">
 								<v-card-text>
 									<v-icon class="opc" @click="date = !date">event</v-icon>
-									Birthdate: {{ editedItem.birthday | formatDate }}
+									Birthdate: {{ editedItem.birthday | formatDate }} {{editedItem.birthday}}
 								</v-card-text>
 								<v-flex v-if="date">
 									<v-date-picker
@@ -65,7 +68,7 @@
 								<v-text-field label="Email" v-model="editedItem.email"></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-card-media :src="'https://rocsafe.inov.pt/img/users/' + editedItem.username + '.jpg'" height="300px"></v-card-media>
+
 							</v-flex>
 						</v-layout>
 					</v-container>
@@ -87,6 +90,7 @@
 					</td>
 					<!-- Active Column -->
 					<td v-if="props.item.active">
+
 						<v-icon color="green" title="Active">check_circle</v-icon>
 					</td>
 					<td v-else>
@@ -99,9 +103,9 @@
 						<v-icon v-if="props.item.gender == 'Unknown'">mdi-help</v-icon>
 					</td>
 					<td>{{ props.item.birthday | formatDate }}</td>
-					<td><span v-for="nationality in props.item.nationality"><flag class="flags" :iso="nationality.abbr"/> {{ props.item.nationality.name }}</span></td>
-					<td><span v-for="language in props.item.spokenLanguage"><flag class="flags" :iso="language.abbr"/></span></td>
-					<td><span v-for="skill in props.item.skills">{{ skill.icon }}</span></td>
+					<td><span v-for="nationality in props.item.nationality"><flag class="flags_skills" :title="nationality.name" :iso="nationality.abbr"/> {{ nationality.name }}</span></td>
+					<td><span v-for="language in props.item.spokenLanguage"><flag class="flags_skills" :title="language.name" :iso="language.abbr"/></span></td>
+					<td><span v-for="skill in props.item.skills"><v-icon class="flags_skills" :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
 					<td v-if="props.item.status == 'Available'">
 						<v-icon title="Available" class="opc">done</v-icon>
@@ -141,13 +145,10 @@
 							</v-flex>
 							<v-flex>
 								<span class="details_content">
-									First Name: {{ props.item.firstName }}
+									Username: {{ props.item.username }}
 								</span>
 								<span class="details_content">
-									Last Name: {{ props.item.lastName }}
-								</span>
-								<span class="details_content">
-									Native Language: <flag class="flags" :iso="props.item.nativeLanguage"/>
+									Native Language: <flag v-for="nativeLanguage in props.item.nativeLanguage" class="flags_skills" :title="nativeLanguage.name" :iso="nativeLanguage.abbr"/>
 								</span>
 							</v-flex>
 							<v-flex>
@@ -187,18 +188,18 @@ export default {
 			status:['Available', 'Assigned', 'Suspended', 'Inactive'],
 			systemLanguages: [{name:'German', abbr:'de'},{name:'Austrian', abbr:'at'},{name:'Belgian', abbr:'be'},{name:'Bulgarian', abbr:'bg'},{name:'Cypriot', abbr:'cy'},{name:'Croatian', abbr:'hr'},{name:'Danish', abbr:'dk'},{name:'Slovakian', abbr:'sk'},{name:'Slovene', abbr:'si'},{name:'Spanish', abbr:'es'},{name:'Estonian', abbr:'ee'},{name:'Finnish', abbr:'fi'},{name:'French', abbr:'fr'},{name:'Greek', abbr:'gr'},{name:'Hungarian', abbr:'hu'},{name:'Irish', abbr:'ie'},{name:'Italian', abbr:'it'},{name:'Latvian', abbr:'lv'},{name:'Lithuanian', abbr:'lt'},{name:'Luxembourgish', abbr:'lu'},{name:'Maltese', abbr:'mt'},{name:'Dutch', abbr:'nl'},{name:'Polish', abbr:'pl'},{name:'Portuguese', abbr:'pt'},{name:'British', abbr:'gb'},{name:'Czech', abbr:'cz'},{name:'Romanian', abbr:'ro'},{name:'Swedish', abbr:'se'}],
 			languages: [{name:'German', abbr:'de'},{name:'Austrian', abbr:'at'},{name:'Belgian', abbr:'be'},{name:'Bulgarian', abbr:'bg'},{name:'Cypriot', abbr:'cy'},{name:'Croatian', abbr:'hr'},{name:'Danish', abbr:'dk'},{name:'Slovakian', abbr:'sk'},{name:'Slovene', abbr:'si'},{name:'Spanish', abbr:'es'},{name:'Estonian', abbr:'ee'},{name:'Finnish', abbr:'fi'},{name:'French', abbr:'fr'},{name:'Greek', abbr:'gr'},{name:'Hungarian', abbr:'hu'},{name:'Irish', abbr:'ie'},{name:'Italian', abbr:'it'},{name:'Latvian', abbr:'lv'},{name:'Lithuanian', abbr:'lt'},{name:'Luxembourgish', abbr:'lu'},{name:'Maltese', abbr:'mt'},{name:'Dutch', abbr:'nl'},{name:'Polish', abbr:'pl'},{name:'Portuguese', abbr:'pt'},{name:'British', abbr:'gb'},{name:'Czech', abbr:'cz'},{name:'Romanian', abbr:'ro'},{name:'Swedish', abbr:'se'},{name:'Unknown', abbr:''}],
-			staffSkills:[{name:'Chemical', icon:'chemical'},{name:'Biological', icon:'biological'},{name:'Radiological', icon:'radiological'},{name:'Nuclear', icon:'nuclear'},{name:'Explosive', icon:'explosive'}],
+			staffSkills:[{name:'Chemical', icon:'chemical-weapon'},{name:'Biological', icon:'biohazard'},{name:'Radioactive', icon:'radioactive'},{name:'Nuclear', icon:'atom'},{name:'Explosive', icon:'bomb'}],
 			columns: [
 				{text: '', value: 'details', type: 'boolean', sortable: false},
 				{text: 'Active', value: 'active', type: 'boolean', width: '7%'},
 				{text: 'Name', value: 'name', type: 'text', width: '17%'},
-				{text: 'Gender', value: 'gender', type: 'text', width: '7%'},
-				{text: 'Birthdate', value: 'birthday', type: 'date', width: '12%'},
-				{text: 'Nationality', value: 'nationality', width: '12%', type: 'array'},
+				{text: 'Gender', value: 'gender', type: 'text', width: '2%'},
+				{text: 'Birthdate', value: 'birthday', type: 'date', width: '10%'},
+				{text: 'Nationality', value: 'nationality', type: 'array', width: '14%'},
 				{text: 'Spoken Languages', value: 'spokenLanguage', width: '12%', type: 'array'},
-				{text: 'Skills', value: 'skills', width: '10%', type: 'array'},
+				{text: 'Skills', value: 'skills', width: '12%', type: 'array'},
 				{text: 'Status', value: 'status', width: '7%', type: 'text'},
-				{text: 'Visible', value: 'visibility', type: 'boolean', width: '10%'},
+				{text: 'Visible', value: 'visibility', type: 'boolean', width: '7%'},
 				{text: 'Options', value: 'opc', width: '10%', sortable: false}
 			],
 			rows: [
@@ -206,7 +207,7 @@ export default {
 			editedItem: {
 				firstName: '',
 				lastName: '',
-				active: false,
+				active: true,
 				gender: '',
 				birthday: '',
 				phone: 0,
@@ -219,7 +220,7 @@ export default {
 				systemLanguage: [],
 				status: '',
 				username: '',
-				visibility: false
+				visibility: true
 			},
 			editedIndex: [],
 			uri:'http://localhost:8081/users'
@@ -244,8 +245,10 @@ export default {
 		postUser() {
 			this.$http.post(this.uri, this.editedItem)
 				.then(response => {
+					this.rows.push(this.editedItem);
 					console.log('User created', response.data);
 					this.$emit('dismiss', response.data);
+
 				})
 				.catch(error => {
 					//this.errorHandler(error);
@@ -324,8 +327,10 @@ export default {
 .description:hover{
   cursor:pointer;
 }
-.flags{
+.flags_skills{
   margin-right:5px;
+	height:1.3em;
+	width:1.3em;
 }
 .half_line{
   display:inline-block;

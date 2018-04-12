@@ -26,6 +26,11 @@ var userStatus = new Schema ({
 });*/
 
 var userSchema = new Schema ({
+	active: {
+		type: Boolean,
+		required: true,
+		default: true
+	},
 	username: {
 		type: String,
 		required: false
@@ -43,7 +48,7 @@ var userSchema = new Schema ({
 		required: true
 	},
 	birthday: {
-		type: Date,
+		type: String,
 		required: true /*true*/
 	},
 	phone: {
@@ -83,6 +88,11 @@ var userSchema = new Schema ({
 	status: {
 		type: String,
 		required: false /*true*/
+	},
+	visibility: {
+		type: Boolean,
+		required: true,
+		default: true
 	},
 	details: {
 		type: Boolean,

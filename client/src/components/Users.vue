@@ -223,7 +223,7 @@ export default {
 				visibility: true
 			},
 			editedIndex: [],
-			uri:'http://localhost:8081/users'
+			uri: 'http://localhost:8081/users'
 		};
 	},
 	mounted () {
@@ -255,6 +255,19 @@ export default {
 					console.log(error);
 				});
 		},
+		editUser() {
+			this.$http.put(this.uri + '/' + this.editedIndex, this.editedItem)
+				.then(response => {
+					console.log('User updated', response.data);
+					this.saving = false;
+					this.$emit('dismiss', response.data);
+				})
+				.catch(error => {
+					console.log(error);
+					//this.saving = false;
+					//this.errorHandler(error);
+				});
+		},
 		addItem: function(i){
 			alert('add!' + i.firstName);
 		},
@@ -267,8 +280,21 @@ export default {
 		delItem: function(user){
 			//Call Delete User
 			const index = user._id;
-			//Fazer Delete !!!
-			confirm('Are you sure you want to delete this item?') && this.rows.splice(index, 1);
+			console.log('Request to delete mission', index);
+			var conf = confirm('Are you sure you want to delete this item?');
+			if (conf) {
+			this.$http.delete(this.uri + '/' + index)
+				.then(response => {
+					console.log('User deleted', response);
+					this.saving = false;
+					this.$emit('dismiss', index);
+				})
+				.catch(error => {
+					console.log(error);
+					//this.saving = false;
+					//this.errorHandler(error);
+				});
+			}
 		},
 		close () {
 			this.dialog = false;
@@ -280,9 +306,10 @@ export default {
 		//Save user btn function
 		save () {
 			//Call Edit User
-			if (this.editedIndex == []) {
+			if (this.editedItem._id != null) {
 				//console.log(this.editedItem);
-				Object.assign(this.rows[this.editedIndex], this.editedItem);
+			//	Object.assign(this.rows[this.editedIndex], this.editedItem);
+			this.editUser();
 			} else {
 				//Call Create User
 				this.postUser();

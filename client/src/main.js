@@ -8,9 +8,10 @@ import FlagIcon from 'vue-flag-icon';
 import 'vuetify/dist/vuetify.min.css';
 import moment from 'moment';
 import VueResource from 'vue-resource';
+import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import 'mdi/css/materialdesignicons.css';
 
 Vue.use(VueResource);
-
 Vue.use(FlagIcon);
 Vue.use(Vuetify);
 
@@ -21,7 +22,6 @@ Vue.filter('formatDate', function(value) {
 });
 Vue.config.productionTip = false;
 
-/* eslint-disable no-new */
 new Vue({
 	el: '#app',
 	router,

@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "material-design-icons": "^3.0.1",
+    "material-design-icons-iconfont": "^3.0.3",
+    "mdi": "^2.2.43",
     "moment": "^2.22.0",
     "vue": "^2.5.2",
     "vue-flag-icon": "^1.0.6",

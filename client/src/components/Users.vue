@@ -87,13 +87,17 @@
 					</td>
 					<!-- Active Column -->
 					<td v-if="props.item.active">
-						<v-icon title="Active">check_circle</v-icon>
+						<v-icon color="green" title="Active">check_circle</v-icon>
 					</td>
 					<td v-else>
-						<v-icon title="Inactive">cancel</v-icon>
+						<v-icon color="red darken-2" title="Inactive">cancel</v-icon>
 					</td>
 					<td>{{ props.item.firstName }} {{ props.item.lastName }}</td>
-					<td>{{ props.item.gender }}</td>
+					<td>
+						<v-icon v-if="props.item.gender == 'Male'">mdi-gender-male</v-icon>
+						<v-icon v-if="props.item.gender == 'Female'">mdi-gender-female</v-icon>
+						<v-icon v-if="props.item.gender == 'Unknown'">mdi-help</v-icon>
+					</td>
 					<td>{{ props.item.birthday | formatDate }}</td>
 					<td><span v-for="nationality in props.item.nationality"><flag class="flags" :iso="nationality.abbr"/> {{ props.item.nationality.name }}</span></td>
 					<td><span v-for="language in props.item.spokenLanguage"><flag class="flags" :iso="language.abbr"/></span></td>

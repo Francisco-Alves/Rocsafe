@@ -14,7 +14,7 @@ import 'mdi/css/materialdesignicons.css';
 Vue.use(VueResource);
 Vue.use(FlagIcon);
 Vue.use(Vuetify);
-
+Vue.config.silent = true;
 Vue.filter('formatDate', function(value) {
 	if (value) {
 		return moment(String(value)).format('YYYY/MM/DD');

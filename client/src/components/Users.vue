@@ -39,7 +39,7 @@
 							<v-flex class="full_line">
 								<v-card-text>
 									<v-icon class="opc" @click="date = !date">event</v-icon>
-									Birthdate: {{ editedItem.birthday | formatDate }} {{editedItem.birthday}}
+									Birthdate: {{ editedItem.birthday | formatDate }}
 								</v-card-text>
 								<v-flex v-if="date">
 									<v-date-picker
@@ -80,12 +80,12 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
-		<v-data-table :headers="columns" :items="rows">
+		<v-data-table :headers="columns" :items="rows" item-key="firstName" :v-model="getUsers()">
 			<template slot="items" slot-scope="props">
-				<tr>
+				<tr @click="props.expanded = !props.expanded">
 					<!-- Show Details Column -->
-					<td @click="props.item.details = !props.item.details">
-						<v-icon v-if="props.item.details" title="Hide" class="opc">keyboard_arrow_up</v-icon>
+					<td >
+						<v-icon v-if="props.expanded" title="Hide" class="opc">keyboard_arrow_up</v-icon>
 						<v-icon v-else title="Show More" class="opc">keyboard_arrow_down</v-icon>
 					</td>
 					<!-- Active Column -->
@@ -137,39 +137,40 @@
 				</tr>
 
 				<!-- Details Section -->
-				<tr v-if="props.item.details">
-					<td colspan="11">
-						<v-container>
-							<v-flex class="profile_img">
-								<v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
-							</v-flex>
-							<v-flex>
-								<span class="details_content">
-									Username: {{ props.item.username }}
-								</span>
-								<span class="details_content">
-									Native Language: <flag v-for="nativeLanguage in props.item.nativeLanguage" class="flags_skills" :title="nativeLanguage.name" :iso="nativeLanguage.abbr"/>
-								</span>
-							</v-flex>
-							<v-flex>
-								<span class="details_content">
-									Phone: {{ props.item.phone }}
-								</span>
-								<span class="details_content">
-									Email: {{ props.item.email }}
-								</span>
-							</v-flex>
-							<v-flex>
-								<span class="description">
-									Description: {{ props.item.description }} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet.!
-								</span>
-							</v-flex>
-						</v-container>
-						<v-container>
-							Missions
-						</v-container>
-					</td>
-				</tr>
+
+			</template>
+			<template slot="expand" slot-scope="props">
+				<td colspan="11">
+					<v-container>
+						<v-flex class="profile_img">
+							<v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
+						</v-flex>
+						<v-flex>
+							<span class="details_content">
+								Username: {{ props.item.username }}
+							</span>
+							<span class="details_content">
+								Native Language: <span v-for="nativeLanguage in props.item.nativeLanguage"><flag class="flags_skills" :title="nativeLanguage.name" :iso="nativeLanguage.abbr"/></span>
+							</span>
+						</v-flex>
+						<v-flex>
+							<span class="details_content">
+								Phone: {{ props.item.phone }}
+							</span>
+							<span class="details_content">
+								Email: {{ props.item.email }}
+							</span>
+						</v-flex>
+						<v-flex>
+							<span class="description">
+								Description: {{ props.item.description }} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet.!
+							</span>
+						</v-flex>
+					</v-container>
+					<v-container>
+						Missions
+					</v-container>
+				</td>
 			</template>
 		</v-data-table>
 	</v-app>
@@ -238,6 +239,7 @@ export default {
 				.then(response => {
 					this.rows.length = 0;
 					response.data.forEach(user => {
+						user.birthday = user.birthday.split("T")[0];
 						this.rows.push(user);
 					});
 				});
@@ -245,7 +247,6 @@ export default {
 		postUser() {
 			this.$http.post(this.uri, this.editedItem)
 				.then(response => {
-					this.rows.push(this.editedItem);
 					console.log('User created', response.data);
 					this.$emit('dismiss', response.data);
 
@@ -259,7 +260,6 @@ export default {
 			this.$http.put(this.uri + '/' + this.editedIndex, this.editedItem)
 				.then(response => {
 					console.log('User updated', response.data);
-					this.saving = false;
 					this.$emit('dismiss', response.data);
 				})
 				.catch(error => {
@@ -267,9 +267,6 @@ export default {
 					//this.saving = false;
 					//this.errorHandler(error);
 				});
-		},
-		addItem: function(i){
-			alert('add!' + i.firstName);
 		},
 		editItem: function(user){
 			//Call Edit User
@@ -286,7 +283,6 @@ export default {
 			this.$http.delete(this.uri + '/' + index)
 				.then(response => {
 					console.log('User deleted', response);
-					this.saving = false;
 					this.$emit('dismiss', index);
 				})
 				.catch(error => {

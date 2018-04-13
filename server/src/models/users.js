@@ -48,7 +48,7 @@ var userSchema = new Schema ({
 		required: true
 	},
 	birthday: {
-		type: String,
+		type: Date,
 		required: true /*true*/
 	},
 	phone: {

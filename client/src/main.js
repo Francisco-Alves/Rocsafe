@@ -7,13 +7,13 @@ import Vuetify from 'vuetify';
 import FlagIcon from 'vue-flag-icon';
 import 'vuetify/dist/vuetify.min.css';
 import moment from 'moment';
-import VueResource from 'vue-resource';
+import AxiosPlugin from './plugins/axios.js';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import 'mdi/css/materialdesignicons.css';
 
-Vue.use(VueResource);
 Vue.use(FlagIcon);
 Vue.use(Vuetify);
+Vue.use(AxiosPlugin);
 Vue.config.silent = true;
 Vue.filter('formatDate', function(value) {
 	if (value) {

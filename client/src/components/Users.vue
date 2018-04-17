@@ -8,14 +8,8 @@
 				</v-card-title>
 				<v-card-text>
 					<v-container grid-list-md>
-						<h2>Formulário de Utilizador</h2>
+						<h2>User Form</h2>
 						<v-layout wrap>
-							<v-flex class="half_line">
-								<v-checkbox label="Active" v-model="editedItem.active"></v-checkbox>
-							</v-flex>
-							<v-flex class="half_line">
-								<v-checkbox label="Visibility" v-model="editedItem.visibility"></v-checkbox>
-							</v-flex>
 							<v-flex class="half_line">
 								<v-text-field label="First Name" v-model="editedItem.firstName"></v-text-field>
 							</v-flex>
@@ -25,33 +19,42 @@
 							<v-flex class="full_line">
 								<v-text-field label="Username" v-model="editedItem.username"></v-text-field>
 							</v-flex>
-							<v-flex class="full_line">
+							<v-flex class="half_line">
+								<v-checkbox label="Active" v-model="editedItem.active"></v-checkbox>
+							</v-flex>
+							<v-flex class="half_line">
+								<v-checkbox label="Visibility" v-model="editedItem.visibility"></v-checkbox>
+							</v-flex>
+							<v-flex class="half_line">
 								<v-select :items="languages" v-model="editedItem.nationality" label="Nationality" class="input-group--focused" item-text="name" item-value="languages"></v-select>
 							</v-flex>
-							<v-flex class="full_line">
+							<v-flex class="half_line">
 								<v-select :items="languages" v-model="editedItem.nativeLanguage" label="Native Language" class="input-group--focused" item-text="name" item-value="languages"></v-select>
 							</v-flex>
-							<v-flex class="full_line">
+							<v-flex class="half_line">
 								<v-select :items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" item-text="name" item-value="languages" autocomplete multiple chips></v-select>
 							</v-flex>
-							<v-flex class="full_line">
-								<v-select :items="systemLanguages" v-model="editedItem.systemLanguage" label="System Language" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+							<v-flex class="half_line">
+								<v-select :items="systemLanguages" v-model="editedItem.systemLanguage" label="System Language" class="input-group--focused" item-text="name" item-value="languages" disabled></v-select>
 							</v-flex>
-							<v-flex class="full_line">
+							<v-flex class="half_line">
+								<v-select :items="staffSkills" v-model="editedItem.skills" label="Skills" item-text="name" item-value="staffSkills" autocomplete multiple chips></v-select>
+							</v-flex>
+							<v-flex class="half_line">
+								<v-select :items="status" v-model="editedItem.status" label="Status" class="input-group--focused"></v-select>
+							</v-flex>
+
+							<v-flex class="half_line" @click="date = !date">
 								<v-card-text>
-									<v-icon class="opc" @click="date = !date">event</v-icon>
+									<v-icon class="opc">event</v-icon>
 									Birthdate: {{ editedItem.birthday | formatDate }}
 								</v-card-text>
 								<v-flex v-if="date">
 									<v-date-picker
-										width="290"
-										class="mt-3"
+										width="200"
 										v-model="editedItem.birthday"
 									></v-date-picker>
 								</v-flex>
-							</v-flex>
-							<v-flex class="full_line">
-								<v-select :items="staffSkills" v-model="editedItem.skills" label="Skills" item-text="name" item-value="staffSkills" autocomplete multiple chips></v-select>
 							</v-flex>
 							<v-flex class="half_line">
 								Gender:
@@ -60,16 +63,13 @@
 								</v-radio-group>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-select :items="status" v-model="editedItem.status" label="Status" class="input-group--focused"></v-select>
+								<v-text-field label="Phone" prepend-icon="phone" mask="#########" v-model="editedItem.phone"></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-text-field label="Phone" v-model="editedItem.phone"></v-text-field>
-							</v-flex>
-							<v-flex class="half_line">
-								<v-text-field label="Email" v-model="editedItem.email"></v-text-field>
+								<v-text-field label="Email" prepend-icon="email" :rules="[rules.required, rules.email]" v-model="editedItem.email"></v-text-field>
 							</v-flex>
 							<v-flex class="full_line">
-								<v-text-field label="Description" v-model="editedItem.description"></v-text-field>
+								<v-text-field label="Description" multi-line v-model="editedItem.description"></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
 
@@ -102,14 +102,14 @@
 					</td>
 					<td>{{ props.item.firstName }} {{ props.item.lastName }}</td>
 					<td>
-						<v-icon v-if="props.item.gender == 'Male'">mdi-gender-male</v-icon>
-						<v-icon v-if="props.item.gender == 'Female'">mdi-gender-female</v-icon>
-						<v-icon v-if="props.item.gender == 'Unknown'">mdi-help</v-icon>
+						<v-icon v-if="props.item.gender == 'Male'" title="Male">mdi-gender-male</v-icon>
+						<v-icon v-if="props.item.gender == 'Female'" title="Female">mdi-gender-female</v-icon>
+						<v-icon v-if="props.item.gender == 'Unknown'" title="Unknown">remove</v-icon>
 					</td>
 					<td>{{ props.item.birthday | formatDate }}</td>
 					<td><span v-for="nationality in props.item.nationality"><flag class="flags_skills" :title="nationality.name" :iso="nationality.abbr"/> {{ nationality.name }}</span></td>
 					<td><span v-for="language in props.item.spokenLanguage"><flag class="flags_skills" :title="language.name" :iso="language.abbr"/></span></td>
-					<td><span v-for="skill in props.item.skills"><v-icon class="flags_skills" :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
+					<td><span v-for="skill in props.item.skills"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
 					<td v-if="props.item.status == 'Available'">
 						<v-icon title="Available" class="opc">done</v-icon>
@@ -147,7 +147,8 @@
 				<td colspan="11">
 					<v-container>
 						<v-flex class="profile_img">
-							<v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
+							<v-card-media v-if="('https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg') != undefined" style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
+							<v-card-media v-else style="width:180px;" height="200px">not found</v-card-media>
 						</v-flex>
 						<v-flex>
 							<span class="details_content">
@@ -189,6 +190,13 @@ export default {
 			title: 'Tabela',
 			dialog : false,
 			date: false,
+			rules: {
+          required: (value) => !!value || 'Required.',
+          email: (value) => {
+            const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            return pattern.test(value) || 'Invalid e-mail.'
+          }
+        },
 			gender:['Male','Female','Unknown'],
 			status:['Available', 'Assigned', 'Suspended', 'Inactive'],
 			systemLanguages: [{name:'German', abbr:'de'},{name:'Austrian', abbr:'at'},{name:'Belgian', abbr:'be'},{name:'Bulgarian', abbr:'bg'},{name:'Cypriot', abbr:'cy'},{name:'Croatian', abbr:'hr'},{name:'Danish', abbr:'dk'},{name:'Slovakian', abbr:'sk'},{name:'Slovene', abbr:'si'},{name:'Spanish', abbr:'es'},{name:'Estonian', abbr:'ee'},{name:'Finnish', abbr:'fi'},{name:'French', abbr:'fr'},{name:'Greek', abbr:'gr'},{name:'Hungarian', abbr:'hu'},{name:'Irish', abbr:'ie'},{name:'Italian', abbr:'it'},{name:'Latvian', abbr:'lv'},{name:'Lithuanian', abbr:'lt'},{name:'Luxembourgish', abbr:'lu'},{name:'Maltese', abbr:'mt'},{name:'Dutch', abbr:'nl'},{name:'Polish', abbr:'pl'},{name:'Portuguese', abbr:'pt'},{name:'British', abbr:'gb'},{name:'Czech', abbr:'cz'},{name:'Romanian', abbr:'ro'},{name:'Swedish', abbr:'se'}],
@@ -196,16 +204,16 @@ export default {
 			staffSkills:[{name:'Chemical', icon:'chemical-weapon'},{name:'Biological', icon:'biohazard'},{name:'Radioactive', icon:'radioactive'},{name:'Nuclear', icon:'atom'},{name:'Explosive', icon:'bomb'}],
 			columns: [
 				{text: '', value: 'details', type: 'boolean', sortable: false},
-				{text: 'Active', value: 'active', type: 'boolean', width: '7%'},
+				{text: 'Active', value: 'active', type: 'boolean'},
 				{text: 'Name', value: 'name', type: 'text', width: '17%'},
-				{text: 'Gender', value: 'gender', type: 'text', width: '2%'},
-				{text: 'Birthdate', value: 'birthday', type: 'date', width: '10%'},
+				{text: 'Gender', value: 'gender', type: 'text'},
+				{text: 'Birthdate', value: 'birthday', type: 'date'},
 				{text: 'Nationality', value: 'nationality', type: 'array', width: '14%'},
-				{text: 'Spoken Languages', value: 'spokenLanguage', width: '12%', type: 'array'},
-				{text: 'Skills', value: 'skills', width: '12%', type: 'array'},
-				{text: 'Status', value: 'status', width: '7%', type: 'text'},
-				{text: 'Visible', value: 'visibility', type: 'boolean', width: '7%'},
-				{text: 'Options', value: 'opc', width: '10%', sortable: false}
+				{text: 'Spoken Languages', value: 'spokenLanguage', type: 'array'},
+				{text: 'Skills', value: 'skills', width: '18%', type: 'array'},
+				{text: 'Status', value: 'status', type: 'text'},
+				{text: 'Visible', value: 'visibility', type: 'boolean'},
+				{text: 'Options', value: 'opc', width: '12%', sortable: false}
 			],
 			rows: [
 			],
@@ -215,7 +223,7 @@ export default {
 				active: true,
 				gender: '',
 				birthday: '',
-				phone: 0,
+				phone: '',
 				email: '',
 				photo: '',
 				description: '',

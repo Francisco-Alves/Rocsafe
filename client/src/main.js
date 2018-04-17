@@ -17,7 +17,7 @@ Vue.use(AxiosPlugin);
 Vue.config.silent = true;
 Vue.filter('formatDate', function(value) {
 	if (value) {
-		return moment(String(value)).format('YYYY/MM/DD');
+		return moment(String(value)).format('YYYY-MM-DD');
 	}
 });
 Vue.config.productionTip = false;

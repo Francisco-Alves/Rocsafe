@@ -8,6 +8,7 @@
 				</v-card-title>
 				<v-card-text>
 					<v-container grid-list-md>
+						<h2>Formulário de Utilizador</h2>
 						<v-layout wrap>
 							<v-flex class="half_line">
 								<v-checkbox label="Active" v-model="editedItem.active"></v-checkbox>
@@ -66,6 +67,9 @@
 							</v-flex>
 							<v-flex class="half_line">
 								<v-text-field label="Email" v-model="editedItem.email"></v-text-field>
+							</v-flex>
+							<v-flex class="full_line">
+								<v-text-field label="Description" v-model="editedItem.description"></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
 
@@ -163,7 +167,7 @@
 						</v-flex>
 						<v-flex>
 							<span class="description">
-								Description: {{ props.item.description }} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet.!
+								Description: {{ props.item.description }}
 							</span>
 						</v-flex>
 					</v-container>
@@ -214,6 +218,7 @@ export default {
 				phone: 0,
 				email: '',
 				photo: '',
+				description: '',
 				nationality: [],
 				skills: [],
 				nativeLanguage: [],

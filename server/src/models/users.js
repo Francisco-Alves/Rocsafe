@@ -65,6 +65,10 @@ var userSchema = new Schema ({
 		contentType: String,
 		required: false
 	},
+	description:{
+		type: String,
+		required: false
+	},
 	nationality: {
 		type: [],
 		required: false

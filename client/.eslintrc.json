@@ -17,6 +17,8 @@
 	],
 	"rules":
 	{
+		"curly": ["error", "multi-line"],
+		"eqeqeq": "error",
 		"indent": ["warn", "tab"],
 		"quotes": ["warn", "single"],
 		"semi": ["warn", "always"],

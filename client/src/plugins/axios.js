@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export default {
 	install: function (Vue, name = '$http') {
-		axios.defaults.baseURL = 'https://rocsafe.inov.pt';
+		axios.defaults.baseURL = 'http://localhost:8081';
 
 		Vue.prototype[name] = axios;
 

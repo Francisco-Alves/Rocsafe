@@ -1,7 +1,7 @@
 <template>
 	<v-app>
 		<v-dialog v-model="dialog" max-width="500px">
-			<v-btn color="primary" dark slot="activator" class="mb-2">New User</v-btn>
+			<v-btn slot="activator" color="primary" dark class="mb-2">New User</v-btn>
 			<v-card>
 				<v-card-title>
 					<span class="headline"></span>
@@ -11,19 +11,19 @@
 						<h2>User Form</h2>
 						<v-layout wrap>
 							<v-flex class="half_line">
-								<v-text-field label="First Name" v-model="editedItem.firstName"></v-text-field>
+								<v-text-field v-model="editedItem.firstName" label="First Name"></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-text-field label="Last Name" v-model="editedItem.lastName"></v-text-field>
+								<v-text-field v-model="editedItem.lastName" label="Last Name"></v-text-field>
 							</v-flex>
 							<v-flex class="full_line">
-								<v-text-field label="Username" v-model="editedItem.username"></v-text-field>
+								<v-text-field v-model="editedItem.username" label="Username"></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-checkbox label="Active" v-model="editedItem.active"></v-checkbox>
+								<v-checkbox v-model="editedItem.active" label="Active"></v-checkbox>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-checkbox label="Visibility" v-model="editedItem.visibility"></v-checkbox>
+								<v-checkbox v-model="editedItem.visibility" label="Visibility"></v-checkbox>
 							</v-flex>
 							<v-flex class="half_line">
 								<v-select :items="languages" v-model="editedItem.nationality" label="Nationality" class="input-group--focused" item-text="name" item-value="languages"></v-select>
@@ -50,10 +50,7 @@
 									Birthdate: {{ editedItem.birthday | formatDate }}
 								</v-card-text>
 								<v-flex v-if="date">
-									<v-date-picker
-										width="200"
-										v-model="editedItem.birthday"
-									></v-date-picker>
+									<v-date-picker v-model="editedItem.birthday" width="200"></v-date-picker>
 								</v-flex>
 							</v-flex>
 							<v-flex class="half_line">
@@ -63,13 +60,13 @@
 								</v-radio-group>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-text-field label="Phone" prepend-icon="phone" mask="#########" v-model="editedItem.phone"></v-text-field>
+								<v-text-field v-model="editedItem.phone" label="Phone" prepend-icon="phone" mask="#########"></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
-								<v-text-field label="Email" prepend-icon="email" :rules="[rules.required, rules.email]" v-model="editedItem.email"></v-text-field>
+								<v-text-field v-model="editedItem.email" label="Email" prepend-icon="email" :rules="[rules.required, rules.email]"></v-text-field>
 							</v-flex>
 							<v-flex class="full_line">
-								<v-text-field label="Description" multi-line v-model="editedItem.description"></v-text-field>
+								<v-text-field v-model="editedItem.description" label="Description" multi-line></v-text-field>
 							</v-flex>
 							<v-flex class="half_line">
 
@@ -84,7 +81,7 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
-		<v-data-table :headers="columns" :items="rows" item-key="firstName" :v-model="getUsers()">
+		<v-data-table :headers="columns" :items="rows" item-key="firstName" :v-model="getUsers()" expand>
 			<template slot="items" slot-scope="props">
 				<tr @click="props.expanded = !props.expanded">
 					<!-- Show Details Column -->
@@ -107,9 +104,9 @@
 						<v-icon v-if="props.item.gender == 'Unknown'" title="Unknown">remove</v-icon>
 					</td>
 					<td>{{ props.item.birthday | formatDate }}</td>
-					<td><span v-for="nationality in props.item.nationality"><flag class="flags_skills" :title="nationality.name" :iso="nationality.abbr"/> {{ nationality.name }}</span></td>
-					<td><span v-for="language in props.item.spokenLanguage"><flag class="flags_skills" :title="language.name" :iso="language.abbr"/></span></td>
-					<td><span v-for="skill in props.item.skills"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
+					<td><span v-for="nationality in props.item.nationality" :key="nationality.abbr"><flag class="flags_skills" :title="nationality.name" :iso="nationality.abbr"/> {{ nationality.name }}</span></td>
+					<td><span v-for="language in props.item.spokenLanguage" :key="language.abbr"><flag class="flags_skills" :title="language.name" :iso="language.abbr"/></span></td>
+					<td><span v-for="skill in props.item.skills" :key="skill.name"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
 					<td v-if="props.item.status == 'Available'">
 						<v-icon title="Available" class="opc">done</v-icon>
@@ -147,15 +144,14 @@
 				<td colspan="11">
 					<v-container>
 						<v-flex class="profile_img">
-							<v-card-media v-if="('https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg') != undefined" style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
-							<v-card-media v-else style="width:180px;" height="200px">not found</v-card-media>
+							<v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
 						</v-flex>
 						<v-flex>
 							<span class="details_content">
 								Username: {{ props.item.username }}
 							</span>
 							<span class="details_content">
-								Native Language: <span v-for="nativeLanguage in props.item.nativeLanguage"><flag class="flags_skills" :title="nativeLanguage.name" :iso="nativeLanguage.abbr"/></span>
+								Native Language: <span v-for="nativeLanguage in props.item.nativeLanguage" :key="nativeLanguage.abbr"><flag class="flags_skills" :title="nativeLanguage.name" :iso="nativeLanguage.abbr"/></span>
 							</span>
 						</v-flex>
 						<v-flex>
@@ -168,7 +164,7 @@
 						</v-flex>
 						<v-flex>
 							<span class="description">
-								Description: {{ props.item.description }}
+								Description: {{ props.item.description }} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit.
 							</span>
 						</v-flex>
 					</v-container>
@@ -191,12 +187,12 @@ export default {
 			dialog : false,
 			date: false,
 			rules: {
-          required: (value) => !!value || 'Required.',
-          email: (value) => {
-            const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            return pattern.test(value) || 'Invalid e-mail.'
-          }
-        },
+				required: (value) => !!value || 'Required.',
+				email: (value) => {
+					const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+					return pattern.test(value) || 'Invalid e-mail.';
+				}
+			},
 			gender:['Male','Female','Unknown'],
 			status:['Available', 'Assigned', 'Suspended', 'Inactive'],
 			systemLanguages: [{name:'German', abbr:'de'},{name:'Austrian', abbr:'at'},{name:'Belgian', abbr:'be'},{name:'Bulgarian', abbr:'bg'},{name:'Cypriot', abbr:'cy'},{name:'Croatian', abbr:'hr'},{name:'Danish', abbr:'dk'},{name:'Slovakian', abbr:'sk'},{name:'Slovene', abbr:'si'},{name:'Spanish', abbr:'es'},{name:'Estonian', abbr:'ee'},{name:'Finnish', abbr:'fi'},{name:'French', abbr:'fr'},{name:'Greek', abbr:'gr'},{name:'Hungarian', abbr:'hu'},{name:'Irish', abbr:'ie'},{name:'Italian', abbr:'it'},{name:'Latvian', abbr:'lv'},{name:'Lithuanian', abbr:'lt'},{name:'Luxembourgish', abbr:'lu'},{name:'Maltese', abbr:'mt'},{name:'Dutch', abbr:'nl'},{name:'Polish', abbr:'pl'},{name:'Portuguese', abbr:'pt'},{name:'British', abbr:'gb'},{name:'Czech', abbr:'cz'},{name:'Romanian', abbr:'ro'},{name:'Swedish', abbr:'se'}],
@@ -236,8 +232,7 @@ export default {
 				username: '',
 				visibility: true
 			},
-			editedIndex: [],
-			uri: 'http://localhost:8081/users'
+			editedIndex: []
 		};
 	},
 	mounted () {
@@ -248,37 +243,37 @@ export default {
 	methods: {
 		//Get Users BD
 		getUsers() {
-			this.$http.get(this.uri)
+			this.$http.get('/users')
 				.then(response => {
 					this.rows.length = 0;
 					response.data.forEach(user => {
-						user.birthday = user.birthday.split("T")[0];
+						user.birthday = user.birthday.split('T')[0];
 						this.rows.push(user);
 					});
 				});
 		},
 		postUser() {
-			this.$http.post(this.uri, this.editedItem)
+			this.$http.post('/users', this.editedItem)
 				.then(response => {
 					console.log('User created', response.data);
 					this.$emit('dismiss', response.data);
 
 				})
 				.catch(error => {
-					//this.errorHandler(error);
+				//this.errorHandler(error);
 					console.log(error);
 				});
 		},
 		editUser() {
-			this.$http.put(this.uri + '/' + this.editedIndex, this.editedItem)
+			this.$http.put('/users/' + this.editedIndex, this.editedItem)
 				.then(response => {
 					console.log('User updated', response.data);
 					this.$emit('dismiss', response.data);
 				})
 				.catch(error => {
 					console.log(error);
-					//this.saving = false;
-					//this.errorHandler(error);
+				//this.saving = false;
+				//this.errorHandler(error);
 				});
 		},
 		editItem: function(user){
@@ -293,16 +288,16 @@ export default {
 			console.log('Request to delete mission', index);
 			var conf = confirm('Are you sure you want to delete this item?');
 			if (conf) {
-			this.$http.delete(this.uri + '/' + index)
-				.then(response => {
-					console.log('User deleted', response);
-					this.$emit('dismiss', index);
-				})
-				.catch(error => {
-					console.log(error);
+				this.$http.delete('/users/' + index)
+					.then(response => {
+						console.log('User deleted', response);
+						this.$emit('dismiss', index);
+					})
+					.catch(error => {
+						console.log(error);
 					//this.saving = false;
 					//this.errorHandler(error);
-				});
+					});
 			}
 		},
 		close () {
@@ -315,10 +310,10 @@ export default {
 		//Save user btn function
 		save () {
 			//Call Edit User
-			if (this.editedItem._id != null) {
+			if (this.editedItem._id !== null) {
 				//console.log(this.editedItem);
-			//	Object.assign(this.rows[this.editedIndex], this.editedItem);
-			this.editUser();
+				//	Object.assign(this.rows[this.editedIndex], this.editedItem);
+				this.editUser();
 			} else {
 				//Call Create User
 				this.postUser();
@@ -332,48 +327,45 @@ export default {
 
 <style scoped>
 .opc:hover{
-  cursor:pointer;
+	cursor:pointer;
 }
 
 .content{
-  height:150px;
+	height:150px;
 }
 .profile_img{
-  width:180px;
-  height:200px;
-  float:left;
-  margin-right:40px;
+	width:180px;
+	height:200px;
+	float:left;
+	margin-right:40px;
 }
 .details_content{
-  display:inline-block;
-  width:20%;
-  text-overflow: ellipsis;
-  max-height: 1.8em;
-  line-height: 1.8em;
+	display:inline-block;
+	width:20%;
+	text-overflow: ellipsis;
+	max-height: 1.8em;
+	line-height: 1.8em;
 }
 .description{
-  display: inline-block;
-  width:70%;
-  text-overflow: ellipsis;
-  word-wrap: break-word;
-  overflow: hidden;
-  max-height: 7.2em;
-  line-height: 1.8em;
-}
-.description:hover{
-  cursor:pointer;
+	display: inline-block;
+	width:70%;
+	text-overflow: ellipsis;
+	word-wrap: break-word;
+	overflow: hidden;
+	height: 7.2em;
+	line-height: 1.8em;
 }
 .flags_skills{
-  margin-right:5px;
+	margin-right:5px;
 	height:1.3em;
 	width:1.3em;
 }
 .half_line{
-  display:inline-block;
-  width:50%;
+	display:inline-block;
+	width:50%;
 }
 .full_line{
-  display:inline-block;
-  width:100%;
+	display:inline-block;
+	width:100%;
 }
 </style>

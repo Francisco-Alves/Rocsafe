@@ -305,6 +305,8 @@ export default {
 			this.dialog = false;
 			setTimeout(() => {
 				this.editedItem = Object.assign({}, null);
+				this.editedItem.spokenLanguage = [];
+				this.editedItem.skills = [];
 				this.editedIndex = [];
 			}, 300);
 		},

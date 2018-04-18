@@ -214,6 +214,7 @@ export default {
 			rows: [
 			],
 			editedItem: {
+				_id: null,
 				firstName: '',
 				lastName: '',
 				active: true,
@@ -309,14 +310,12 @@ export default {
 		},
 		//Save user btn function
 		save () {
-			//Call Edit User
-			if (this.editedItem._id !== null) {
-				//console.log(this.editedItem);
-				//	Object.assign(this.rows[this.editedIndex], this.editedItem);
-				this.editUser();
-			} else {
-				//Call Create User
+			//Call Create User
+			if (this.editedItem._id === null) {
 				this.postUser();
+			} else {
+				//Call Edit User
+				this.editUser();
 			}
 			this.close();
 

@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<v-dialog v-model="dialog" max-width="1000px">
+		<v-dialog v-model="dialog" max-width="1000px" persistent lazy-validation="true">
 			<v-btn slot="activator" color="primary" dark class="mb-2">New User</v-btn>
 			<v-card>
 				<v-card-title>
@@ -9,26 +9,32 @@
 				<v-card-text>
 					<v-container grid-list-md>
 						<v-layout wrap>
-							<v-flex class="half_line">
-								<h2>User Form</h2>
+							<v-flex class="full_line formHeader">
+								<v-avatar v-if="dialogName == 'Edit User'" class="inline avatar" size="36px"><img :src="'https://rocsafe.inov.pt/img/users/' + editedItem.username + '.jpg'" alt="" /></v-avatar>
+								<!--<v-avatar class="inline avatar" size="36px"><v-icon>person</v-icon></v-avatar>-->
+								<h2 class="inline">{{dialogName}}</h2>
+
+								<v-btn class="inline close" icon @click.native="close" dark>
+									<v-icon>close</v-icon>
+								</v-btn>
 							</v-flex>
-							<v-flex class="quarter_line">
+							<v-flex class="half_line">
 								<v-checkbox v-model="editedItem.active" label="Active"></v-checkbox>
 							</v-flex>
-							<v-flex class="quarter_line">
+							<v-flex class="half_line">
 								<v-checkbox v-model="editedItem.visibility" label="Visible"></v-checkbox>
 							</v-flex>
 							<v-flex class="quarter_line">
-								<v-text-field v-model="editedItem.firstName" label="First Name"></v-text-field>
+								<v-text-field v-model="editedItem.firstName" label="First Name" required></v-text-field>
 							</v-flex>
 							<v-flex class="quarter_line">
-								<v-text-field v-model="editedItem.lastName" label="Last Name"></v-text-field>
+								<v-text-field v-model="editedItem.lastName" label="Last Name" required></v-text-field>
 							</v-flex>
 							<v-flex class="quarter_line">
-								<v-text-field v-model="editedItem.username" label="Username"></v-text-field>
+								<v-text-field v-model="editedItem.username" label="Username" required></v-text-field>
 							</v-flex>
 							<v-flex class="quarter_line">
-								<v-text-field v-model="editedItem.email" label="Email" prepend-icon="email" :rules="[rules.required, rules.email]"></v-text-field>
+								<v-text-field v-model="editedItem.email" label="Email" prepend-icon="email" :rules="[rules.required, rules.email]" required></v-text-field>
 							</v-flex>
 							<v-flex class="half_line" @click="date = !date">
 								<v-card-text>
@@ -143,7 +149,7 @@
 			</template>
 			<template slot="expand" slot-scope="props">
 				<td colspan="11">
-					<v-container>
+					<v-container class="details">
 						<v-flex class="profile_img">
 							<img ref="profile_pic" style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px" @error="imageLoadOnError()"></img>
 							<v-icon ref="avatar" size="175px"></v-icon>
@@ -166,11 +172,11 @@
 						</v-flex>
 						<v-flex>
 							<span class="description">
-								Description: {{ props.item.description }} Lorem ipsum dolor sLorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit hymenaeos pellentesque suspendisse, molestiae sed, tincidunt sapien rhoncus scelerisque, morbi justo et fermentum aliquet elit lorem, fermentum magna.Lorem ipsum dolor sit amet, in per suscipit.
+								Description: {{ props.item.description }}
 							</span>
 						</v-flex>
 					</v-container>
-					<v-container>
+					<v-container class="details border">
 						Missions
 					</v-container>
 				</td>
@@ -186,6 +192,7 @@ export default {
 		return {
 			title: 'Tabela',
 			dialog : false,
+			dialogName: 'Add User',
 			date: false,
 			rules: {
 				required: (value) => !!value || 'Required.',
@@ -244,7 +251,6 @@ export default {
 	},
 	methods: {
 		imageLoadOnError () {
-			//this.$refs.profile_pic.src = "https://rocsafe.inov.pt/img/users/hugo.jpg";
 			console.log(this.$refs);
 			this.$refs.profile_pic.outerHTML = "";
 			this.$refs.avatar.innerText = "person";
@@ -288,13 +294,14 @@ export default {
 			//Call Edit User
 			this.editedIndex = user._id;
 			this.editedItem = Object.assign({}, user);
+			this.dialogName = "Edit User";
 			this.dialog = true;
 		},
 		delItem: function(user){
 			//Call Delete User
 			const index = user._id;
 			console.log('Request to delete mission', index);
-			var conf = confirm('Are you sure you want to delete this item?');
+			var conf = confirm('Are you sure you want to delete this user?');
 			if (conf) {
 				this.$http.delete('/users/' + index)
 				.then(response => {
@@ -310,6 +317,7 @@ export default {
 		},
 		close () {
 			this.dialog = false;
+			this.dialogName = "Add User";
 			setTimeout(() => {
 				this.editedItem = Object.assign({}, null);
 				this.editedItem.spokenLanguage = [];
@@ -334,6 +342,15 @@ export default {
 </script>
 
 <style scoped>
+.close {
+
+}
+.border{
+	border:1px solid grey;
+}
+.inline{
+	display:inline;
+}
 .opc:hover{
 	cursor:pointer;
 }
@@ -347,20 +364,24 @@ export default {
 	float:left;
 	margin-right:40px;
 }
+.details{
+	height:250px;
+	width:1200px;
+}
 .details_content{
 	display:inline-block;
-	width:20%;
+	width:30%;
 	text-overflow: ellipsis;
 	max-height: 1.8em;
 	line-height: 1.8em;
 }
 .description{
 	display: inline-block;
-	width:70%;
+	width:80%;
 	text-overflow: ellipsis;
 	word-wrap: break-word;
 	overflow: hidden;
-	height: 7.2em;
+	height: 10.8em;
 	line-height: 1.8em;
 }
 .flags_skills{
@@ -368,8 +389,14 @@ export default {
 	height:1.3em;
 	width:1.3em;
 }
-.border{
-	border:1px solid grey;
+
+.formHeader{
+	background-color:#1E88E5;
+	color:white;
+	display:inline;
+}
+.formHeader img{
+	margin: 5px 10px 0px 10px;
 }
 .half_line{
 	display:inline-block;

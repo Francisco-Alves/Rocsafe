@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<v-dialog v-model="dialog" max-width="500px">
+		<v-dialog v-model="dialog" max-width="1000px">
 			<v-btn slot="activator" color="primary" dark class="mb-2">New User</v-btn>
 			<v-card>
 				<v-card-title>
@@ -8,42 +8,28 @@
 				</v-card-title>
 				<v-card-text>
 					<v-container grid-list-md>
-						<h2>User Form</h2>
 						<v-layout wrap>
 							<v-flex class="half_line">
-								<v-text-field v-model="editedItem.firstName" label="First Name"></v-text-field>
+								<h2>User Form</h2>
 							</v-flex>
-							<v-flex class="half_line">
-								<v-text-field v-model="editedItem.lastName" label="Last Name"></v-text-field>
-							</v-flex>
-							<v-flex class="full_line">
-								<v-text-field v-model="editedItem.username" label="Username"></v-text-field>
-							</v-flex>
-							<v-flex class="half_line">
+							<v-flex class="quarter_line">
 								<v-checkbox v-model="editedItem.active" label="Active"></v-checkbox>
 							</v-flex>
-							<v-flex class="half_line">
-								<v-checkbox v-model="editedItem.visibility" label="Visibility"></v-checkbox>
+							<v-flex class="quarter_line">
+								<v-checkbox v-model="editedItem.visibility" label="Visible"></v-checkbox>
 							</v-flex>
-							<v-flex class="half_line">
-								<v-select :items="languages" v-model="editedItem.nationality" label="Nationality" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+							<v-flex class="quarter_line">
+								<v-text-field v-model="editedItem.firstName" label="First Name"></v-text-field>
 							</v-flex>
-							<v-flex class="half_line">
-								<v-select :items="languages" v-model="editedItem.nativeLanguage" label="Native Language" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+							<v-flex class="quarter_line">
+								<v-text-field v-model="editedItem.lastName" label="Last Name"></v-text-field>
 							</v-flex>
-							<v-flex class="half_line">
-								<v-select :items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" item-text="name" item-value="languages" autocomplete multiple chips></v-select>
+							<v-flex class="quarter_line">
+								<v-text-field v-model="editedItem.username" label="Username"></v-text-field>
 							</v-flex>
-							<v-flex class="half_line">
-								<v-select :items="systemLanguages" v-model="editedItem.systemLanguage" label="System Language" class="input-group--focused" item-text="name" item-value="languages" disabled></v-select>
+							<v-flex class="quarter_line">
+								<v-text-field v-model="editedItem.email" label="Email" prepend-icon="email" :rules="[rules.required, rules.email]"></v-text-field>
 							</v-flex>
-							<v-flex class="half_line">
-								<v-select :items="staffSkills" v-model="editedItem.skills" label="Skills" item-text="name" item-value="staffSkills" autocomplete multiple chips></v-select>
-							</v-flex>
-							<v-flex class="half_line">
-								<v-select :items="status" v-model="editedItem.status" label="Status" class="input-group--focused"></v-select>
-							</v-flex>
-
 							<v-flex class="half_line" @click="date = !date">
 								<v-card-text>
 									<v-icon class="opc">event</v-icon>
@@ -53,17 +39,32 @@
 									<v-date-picker v-model="editedItem.birthday" width="200"></v-date-picker>
 								</v-flex>
 							</v-flex>
-							<v-flex class="half_line">
+							<v-flex class="quarter_line">
 								Gender:
 								<v-radio-group v-model="editedItem.gender">
 									<v-radio v-for="n in gender" :key="n" :label="`${n}`" :value="n"></v-radio>
 								</v-radio-group>
 							</v-flex>
-							<v-flex class="half_line">
+							<v-flex class="quarter_line">
 								<v-text-field v-model="editedItem.phone" label="Phone" prepend-icon="phone" mask="#########"></v-text-field>
 							</v-flex>
+							<v-flex class="quarter_line">
+								<v-select :items="languages" v-model="editedItem.nationality" label="Nationality" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+							</v-flex>
+							<v-flex class="quarter_line">
+								<v-select :items="languages" v-model="editedItem.nativeLanguage" label="Native Language" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+							</v-flex>
+							<v-flex class="quarter_line">
+								<v-select :items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" item-text="name" item-value="languages" autocomplete multiple chips></v-select>
+							</v-flex>
+							<v-flex class="quarter_line">
+								<v-select :items="systemLanguages" v-model="editedItem.systemLanguage" label="System Language" class="input-group--focused" item-text="name" item-value="languages" disabled></v-select>
+							</v-flex>
 							<v-flex class="half_line">
-								<v-text-field v-model="editedItem.email" label="Email" prepend-icon="email" :rules="[rules.required, rules.email]"></v-text-field>
+								<v-select :items="staffSkills" v-model="editedItem.skills" label="Skills" item-text="name" item-value="staffSkills" autocomplete multiple chips></v-select>
+							</v-flex>
+							<v-flex class="half_line">
+								<v-select :items="status" v-model="editedItem.status" label="Status" class="input-group--focused"></v-select>
 							</v-flex>
 							<v-flex class="full_line">
 								<v-text-field v-model="editedItem.description" label="Description" multi-line></v-text-field>
@@ -104,8 +105,8 @@
 						<v-icon v-if="props.item.gender == 'Unknown'" title="Unknown">remove</v-icon>
 					</td>
 					<td>{{ props.item.birthday | formatDate }}</td>
-					<td><span v-for="nationality in props.item.nationality" :key="nationality.abbr"><flag class="flags_skills" :title="nationality.name" :iso="nationality.abbr"/> {{ nationality.name }}</span></td>
-					<td><span v-for="language in props.item.spokenLanguage" :key="language.abbr"><flag class="flags_skills" :title="language.name" :iso="language.abbr"/></span></td>
+					<td><span v-for="nationality in props.item.nationality" :key="nationality.abbr"><flag class="flags_skills border" :title="nationality.name" :iso="nationality.abbr"/> {{ nationality.name }}</span></td>
+					<td><span v-for="language in props.item.spokenLanguage" :key="language.abbr"><flag class="flags_skills border" :title="language.name" :iso="language.abbr"/></span></td>
 					<td><span v-for="skill in props.item.skills" :key="skill.name"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
 					<td v-if="props.item.status == 'Available'">
@@ -144,14 +145,15 @@
 				<td colspan="11">
 					<v-container>
 						<v-flex class="profile_img">
-							<v-card-media style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px"></v-card-media>
+							<img ref="profile_pic" style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px" @error="imageLoadOnError()"></img>
+							<v-icon ref="avatar" size="175px"></v-icon>
 						</v-flex>
 						<v-flex>
 							<span class="details_content">
 								Username: {{ props.item.username }}
 							</span>
 							<span class="details_content">
-								Native Language: <span v-for="nativeLanguage in props.item.nativeLanguage" :key="nativeLanguage.abbr"><flag class="flags_skills" :title="nativeLanguage.name" :iso="nativeLanguage.abbr"/></span>
+								Native Language: <span v-for="nativeLanguage in props.item.nativeLanguage" :key="nativeLanguage.abbr"><flag class="flags_skills border" :title="nativeLanguage.name" :iso="nativeLanguage.abbr"/></span>
 							</span>
 						</v-flex>
 						<v-flex>
@@ -178,7 +180,6 @@
 </template>
 
 <script>
-
 export default {
 	name: 'Users',
 	data () {
@@ -242,40 +243,46 @@ export default {
 		this.getUsers();
 	},
 	methods: {
+		imageLoadOnError () {
+			//this.$refs.profile_pic.src = "https://rocsafe.inov.pt/img/users/hugo.jpg";
+			console.log(this.$refs);
+			this.$refs.profile_pic.outerHTML = "";
+			this.$refs.avatar.innerText = "person";
+		},
 		//Get Users BD
 		getUsers() {
 			this.$http.get('/users')
-				.then(response => {
-					this.rows.length = 0;
-					response.data.forEach(user => {
-						user.birthday = user.birthday.split('T')[0];
-						this.rows.push(user);
-					});
+			.then(response => {
+				this.rows.length = 0;
+				response.data.forEach(user => {
+					user.birthday = user.birthday.split('T')[0];
+					this.rows.push(user);
 				});
+			});
 		},
 		postUser() {
 			this.$http.post('/users', this.editedItem)
-				.then(response => {
-					console.log('User created', response.data);
-					this.$emit('dismiss', response.data);
+			.then(response => {
+				console.log('User created', response.data);
+				this.$emit('dismiss', response.data);
 
-				})
-				.catch(error => {
+			})
+			.catch(error => {
 				//this.errorHandler(error);
-					console.log(error);
-				});
+				console.log(error);
+			});
 		},
 		editUser() {
 			this.$http.put('/users/' + this.editedIndex, this.editedItem)
-				.then(response => {
-					console.log('User updated', response.data);
-					this.$emit('dismiss', response.data);
-				})
-				.catch(error => {
-					console.log(error);
+			.then(response => {
+				console.log('User updated', response.data);
+				this.$emit('dismiss', response.data);
+			})
+			.catch(error => {
+				console.log(error);
 				//this.saving = false;
 				//this.errorHandler(error);
-				});
+			});
 		},
 		editItem: function(user){
 			//Call Edit User
@@ -290,15 +297,15 @@ export default {
 			var conf = confirm('Are you sure you want to delete this item?');
 			if (conf) {
 				this.$http.delete('/users/' + index)
-					.then(response => {
-						console.log('User deleted', response);
-						this.$emit('dismiss', index);
-					})
-					.catch(error => {
-						console.log(error);
+				.then(response => {
+					console.log('User deleted', response);
+					this.$emit('dismiss', index);
+				})
+				.catch(error => {
+					console.log(error);
 					//this.saving = false;
 					//this.errorHandler(error);
-					});
+				});
 			}
 		},
 		close () {
@@ -361,6 +368,9 @@ export default {
 	height:1.3em;
 	width:1.3em;
 }
+.border{
+	border:1px solid grey;
+}
 .half_line{
 	display:inline-block;
 	width:50%;
@@ -368,5 +378,9 @@ export default {
 .full_line{
 	display:inline-block;
 	width:100%;
+}
+.quarter_line{
+	display:inline-block;
+	width:25%;
 }
 </style>

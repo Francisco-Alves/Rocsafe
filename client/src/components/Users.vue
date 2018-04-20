@@ -1,23 +1,23 @@
 <template>
 	<v-app>
-		<v-dialog v-model="dialog" max-width="1000px" persistent lazy-validation="true">
+		<v-dialog v-model="dialog" max-width="1000px" ref="form" persistent lazy-validation>
 			<v-btn slot="activator" color="primary" dark class="mb-2">New User</v-btn>
 			<v-card>
 				<v-card-title>
-					<span class="headline"></span>
+					<v-toolbar dense dark color="primary">
+						<v-avatar size="40">
+							<v-icon x-large>person</v-icon>
+						</v-avatar>
+						<span class="headline mx-3"> {{ dialogName }} </span>
+						<v-spacer></v-spacer>
+						<v-btn class="inline close" icon dark @click.native="close">
+							<v-icon>close</v-icon>
+						</v-btn>
+					</v-toolbar>
 				</v-card-title>
 				<v-card-text>
 					<v-container grid-list-md>
 						<v-layout wrap>
-							<v-flex class="full_line formHeader">
-								<v-avatar v-if="dialogName == 'Edit User'" class="inline avatar" size="36px"><img :src="'https://rocsafe.inov.pt/img/users/' + editedItem.username + '.jpg'" alt="" /></v-avatar>
-								<!--<v-avatar class="inline avatar" size="36px"><v-icon>person</v-icon></v-avatar>-->
-								<h2 class="inline">{{dialogName}}</h2>
-
-								<v-btn class="inline close" icon @click.native="close" dark>
-									<v-icon>close</v-icon>
-								</v-btn>
-							</v-flex>
 							<v-flex class="half_line">
 								<v-checkbox v-model="editedItem.active" label="Active"></v-checkbox>
 							</v-flex>
@@ -25,13 +25,13 @@
 								<v-checkbox v-model="editedItem.visibility" label="Visible"></v-checkbox>
 							</v-flex>
 							<v-flex class="quarter_line">
-								<v-text-field v-model="editedItem.firstName" label="First Name" required></v-text-field>
+								<v-text-field v-model="editedItem.firstName" :rules="[rules.required]" label="First Name" required></v-text-field>
 							</v-flex>
 							<v-flex class="quarter_line">
-								<v-text-field v-model="editedItem.lastName" label="Last Name" required></v-text-field>
+								<v-text-field v-model="editedItem.lastName" :rules="[rules.required]" label="Last Name" required></v-text-field>
 							</v-flex>
 							<v-flex class="quarter_line">
-								<v-text-field v-model="editedItem.username" label="Username" required></v-text-field>
+								<v-text-field v-model="editedItem.username" :rules="[rules.required]" label="Username" required></v-text-field>
 							</v-flex>
 							<v-flex class="quarter_line">
 								<v-text-field v-model="editedItem.email" label="Email" prepend-icon="email" :rules="[rules.required, rules.email]" required></v-text-field>
@@ -83,18 +83,20 @@
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
-					<v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-					<v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+					<v-btn color="blue darken-1" flat @click.native="save">
+						Save
+						<v-icon right>backup</v-icon>
+					</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
-		<v-data-table :headers="columns" :items="rows" item-key="firstName" :v-model="getUsers()" expand>
+		<v-data-table :headers="columns" :items="rows" item-key="firstName" expand>
 			<template slot="items" slot-scope="props">
-				<tr @click="props.expanded = !props.expanded">
+				<tr>
 					<!-- Show Details Column -->
 					<td >
-						<v-icon v-if="props.expanded" title="Hide" class="opc">keyboard_arrow_up</v-icon>
-						<v-icon v-else title="Show More" class="opc">keyboard_arrow_down</v-icon>
+						<v-icon v-if="props.expanded" title="Hide" class="opc" @click="props.expanded = !props.expanded">keyboard_arrow_up</v-icon>
+						<v-icon v-else title="Show More" class="opc" @click="props.expanded = !props.expanded">keyboard_arrow_down</v-icon>
 					</td>
 					<!-- Active Column -->
 					<td v-if="props.item.active">
@@ -116,24 +118,25 @@
 					<td><span v-for="skill in props.item.skills" :key="skill.name"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
 					<td v-if="props.item.status == 'Available'">
-						<v-icon title="Available" class="opc">done</v-icon>
+						<v-icon title="Available">done</v-icon>
 					</td>
 					<td v-else-if="props.item.status == 'Assigned'">
-						<v-icon title="Assigned" class="opc">spellcheck</v-icon>
+						<v-icon title="Assigned">spellcheck</v-icon>
 					</td>
 					<td v-else-if="props.item.status == 'Suspended'">
-						<v-icon title="Suspended" class="opc">not_interested</v-icon>
+						<v-icon title="Suspended">not_interested</v-icon>
 					</td>
 					<td v-else-if="props.item.status == 'Inactive'">
-						<v-icon title="Inactive" class="opc">error</v-icon>
+						<v-icon title="Inactive">error</v-icon>
 					</td>
+					<td v-else></td>
 
 					<!-- Visibility Column -->
 					<td v-if="props.item.visibility">
-						<v-icon @click="props.item.visibility = !props.item.visibility" title="Visible" class="opc">visibility</v-icon>
+						<v-icon @click="props.item.visibility = !props.item.visibility" title="Visible">visibility</v-icon>
 					</td>
 					<td v-else>
-						<v-icon @click="props.item.visibility = !props.item.visibility" title="Non Visible" class="opc">visibility_off</v-icon>
+						<v-icon @click="props.item.visibility = !props.item.visibility" title="Non Visible">visibility_off</v-icon>
 					</td>
 
 					<!-- Options Column -->
@@ -151,7 +154,7 @@
 				<td colspan="11">
 					<v-container class="details">
 						<v-flex class="profile_img">
-							<img ref="profile_pic" style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px" @error="imageLoadOnError()"></img>
+							<img ref="profile_pic" style="width:180px;" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" height="200px" @error="imageLoadOnError()">
 							<v-icon ref="avatar" size="175px"></v-icon>
 						</v-flex>
 						<v-flex>
@@ -176,9 +179,9 @@
 							</span>
 						</v-flex>
 					</v-container>
-					<v-container class="details border">
-						Missions
-					</v-container>
+					<!--<v-container class="details border">
+					Missions
+				</v-container>-->
 				</td>
 			</template>
 		</v-data-table>
@@ -195,11 +198,8 @@ export default {
 			dialogName: 'Add User',
 			date: false,
 			rules: {
-				required: (value) => !!value || 'Required.',
-				email: (value) => {
-					const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-					return pattern.test(value) || 'Invalid e-mail.';
-				}
+				required: value => value !== undefined && value.trim().length > 0 || 'Required',
+				email: value => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'E-mail must be valid'
 			},
 			gender:['Male','Female','Unknown'],
 			status:['Available', 'Assigned', 'Suspended', 'Inactive'],
@@ -217,7 +217,7 @@ export default {
 				{text: 'Skills', value: 'skills', width: '18%', type: 'array'},
 				{text: 'Status', value: 'status', type: 'text'},
 				{text: 'Visible', value: 'visibility', type: 'boolean'},
-				{text: 'Options', value: 'opc', width: '12%', sortable: false}
+				{text: 'Actions', value: 'opc', width: '12%', sortable: false}
 			],
 			rows: [
 			],
@@ -225,7 +225,7 @@ export default {
 				_id: null,
 				firstName: '',
 				lastName: '',
-				active: true,
+				active: false,
 				gender: '',
 				birthday: '',
 				phone: '',
@@ -241,7 +241,7 @@ export default {
 				username: '',
 				visibility: true
 			},
-			editedIndex: []
+			editedIndex: null
 		};
 	},
 	mounted () {
@@ -250,89 +250,102 @@ export default {
 		this.getUsers();
 	},
 	methods: {
+		mongoObjectId () {
+			var timestamp = (new Date().getTime() / 1000 | 0).toString(16);
+			return timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, function() {
+				return (Math.random() * 16 | 0).toString(16);
+			}).toLowerCase();
+		},
+		//Profile Image Handler
 		imageLoadOnError () {
 			console.log(this.$refs);
-			this.$refs.profile_pic.outerHTML = "";
-			this.$refs.avatar.innerText = "person";
+			this.$refs.profile_pic.outerHTML = '';
+			this.$refs.avatar.innerText = 'person';
 		},
 		//Get Users BD
 		getUsers() {
 			this.$http.get('/users')
-			.then(response => {
-				this.rows.length = 0;
-				response.data.forEach(user => {
-					user.birthday = user.birthday.split('T')[0];
-					this.rows.push(user);
+				.then(response => {
+					this.rows.length = 0;
+					response.data.forEach(user => {
+						user.birthday = user.birthday.split('T')[0];
+						this.rows.push(user);
+					});
 				});
-			});
 		},
 		postUser() {
-			this.$http.post('/users', this.editedItem)
-			.then(response => {
-				console.log('User created', response.data);
-				this.$emit('dismiss', response.data);
 
-			})
-			.catch(error => {
+			this.$http.post('/users', this.editedItem)
+				.then(response => {
+					console.log('User created', response.data);
+					this.$emit('dismiss', response.data);
+
+				})
+				.catch(error => {
 				//this.errorHandler(error);
-				console.log(error);
-			});
+					console.log(error);
+				});
 		},
 		editUser() {
-			this.$http.put('/users/' + this.editedIndex, this.editedItem)
-			.then(response => {
-				console.log('User updated', response.data);
-				this.$emit('dismiss', response.data);
-			})
-			.catch(error => {
-				console.log(error);
+			this.$http.put('/users/' + this.editedItem._id, this.editedItem)
+				.then(response => {
+					console.log('User updated', response.data);
+					this.$emit('dismiss', response.data);
+				})
+				.catch(error => {
+					console.log(error);
 				//this.saving = false;
 				//this.errorHandler(error);
-			});
+				});
 		},
 		editItem: function(user){
 			//Call Edit User
-			this.editedIndex = user._id;
+			this.editedIndex = this.rows.indexOf(user);
 			this.editedItem = Object.assign({}, user);
-			this.dialogName = "Edit User";
+			this.dialogName = 'Edit User';
 			this.dialog = true;
 		},
 		delItem: function(user){
 			//Call Delete User
 			const index = user._id;
-			console.log('Request to delete mission', index);
+			const index_row = this.rows.indexOf(user);
+			console.log('Request to delete user', index);
 			var conf = confirm('Are you sure you want to delete this user?');
 			if (conf) {
+				this.rows.splice(index_row, 1);
 				this.$http.delete('/users/' + index)
-				.then(response => {
-					console.log('User deleted', response);
-					this.$emit('dismiss', index);
-				})
-				.catch(error => {
-					console.log(error);
+					.then(response => {
+						console.log('User deleted', response);
+						this.$emit('dismiss', index);
+					})
+					.catch(error => {
+						console.log(error);
 					//this.saving = false;
 					//this.errorHandler(error);
-				});
+					});
 			}
 		},
 		close () {
 			this.dialog = false;
-			this.dialogName = "Add User";
+			this.dialogName = 'Add User';
 			setTimeout(() => {
 				this.editedItem = Object.assign({}, null);
 				this.editedItem.spokenLanguage = [];
 				this.editedItem.skills = [];
-				this.editedIndex = [];
+				this.editedIndex = null;
 			}, 300);
 		},
 		//Save user btn function
 		save () {
 			//Call Create User
-			if (this.editedItem._id === null) {
+			if (this.editedIndex === null) {
+				this.editedItem._id = this.mongoObjectId();
 				this.postUser();
+				this.rows.push(this.editedItem);
 			} else {
 				//Call Edit User
 				this.editUser();
+				Object.assign(this.rows[this.editedIndex], this.editedItem);
 			}
 			this.close();
 

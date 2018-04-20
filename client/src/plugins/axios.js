@@ -2,7 +2,8 @@ import axios from 'axios';
 
 export default {
 	install: function (Vue, name = '$http') {
-		axios.defaults.baseURL = 'http://localhost:8081';
+		var service_url = process.env.SERVICE_URL;
+		axios.defaults.baseURL = service_url;
 
 		Vue.prototype[name] = axios;
 

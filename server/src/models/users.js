@@ -48,7 +48,7 @@ var userSchema = new Schema ({
 	},
 	birthday: {
 		type: Date,
-		required: true /*true*/
+		required: false /*true*/
 	},
 	phone: {
 		type: String,
@@ -78,19 +78,19 @@ var userSchema = new Schema ({
 	},
 	nativeLanguage: {
 		type: [],
-		required: false /*true*/
+		required: false
 	},
 	spokenLanguage: {
 		type: [],
-		required: false /*true*/
+		required: false
 	},
 	systemLanguage: {
 		type: [],
-		required: false /*true*/
+		required: false
 	},
 	status: {
 		type: String,
-		required: false /*true*/
+		required: false
 	},
 	visibility: {
 		type: Boolean,

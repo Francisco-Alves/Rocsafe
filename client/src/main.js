@@ -8,6 +8,7 @@ import FlagIcon from 'vue-flag-icon';
 import 'vuetify/dist/vuetify.min.css';
 import moment from 'moment';
 import AxiosPlugin from './plugins/axios.js';
+import 'typeface-roboto/index.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import 'mdi/css/materialdesignicons.css';
 

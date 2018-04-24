@@ -27,5 +27,9 @@
 		"vue/html-indent": ["warn", "tab"],
 		"vue/html-self-closing": "off",
 		"vue/max-attributes-per-line": "off"
+	},
+	"globals":
+	{
+		"process": false
 	}
 }

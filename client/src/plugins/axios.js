@@ -2,8 +2,7 @@ import axios from 'axios';
 
 export default {
 	install: function (Vue, name = '$http') {
-		var service_url = process.env.SERVICE_URL;
-		axios.defaults.baseURL = service_url;
+		axios.defaults.baseURL = process.env.SERVICE_URL;
 
 		Vue.prototype[name] = axios;
 

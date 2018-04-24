@@ -1,16 +1,28 @@
+# vue-vuetify
+
+> Vue.js & Vuetify Demo App
+
 ## Build Setup
 
-# install dependencies
+``` bash
+# Install dependencies
 npm install
 
-# serve with hot reload at localhost:8080
+# Serve with hot reload at localhost. It will run on port 8080 by default.
+# If that port is already in use, the next free port will be used.
 npm run dev
 
-# build for production with minification
+# Build for production with minification
 npm run build
 
-# build for production and view the bundle analyzer report
-npm run build --report
+# Deploy bundled package to production server
+npm run deploy
+
+# Lint source code
+npm run lint
+
+# Clean both development and build folders
+npm run clean
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).

@@ -1,7 +1,31 @@
 <template>
 	<v-app>
-		<v-dialog v-model="dialog" scrollable max-width="1000px" persistent>
-			<v-btn slot="activator" color="primary" dark class="mb-2">New User</v-btn>
+		<!-- Alert Dialog -->
+		<v-dialog v-model="deleteAlert" max-width="450">
+			<v-card class="warningAlert">
+				<v-icon style="float:left; margin-top:10px; margin-left:10px;" large>priority_high</v-icon>
+				<v-card-title class="headline">Are you sure you want to delete user "{{ deleteItem.firstName }} {{ deleteItem.lastName }}"?</v-card-title>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn color="darken-1" flat="flat" autofocus @click="deleteAlert = false; deleteItem = {}">No</v-btn>
+					<v-btn color="darken-1" flat="flat" @click="deleteAlert = false; delItem(deleteItem)">Yes, I'm Sure</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
+		<v-toolbar dense>
+			<v-btn color="primary" dark class="mb-2" @click="userForm = !userForm">New User</v-btn>
+			<v-spacer></v-spacer><v-spacer></v-spacer><v-spacer></v-spacer>
+			<v-text-field
+				v-model="search"
+				append-icon="search"
+				label="Search"
+				single-line
+				hide-details
+			></v-text-field>
+		</v-toolbar>
+		<!-- User Form Dialog -->
+		<v-dialog v-model="userForm" scrollable max-width="1000px" persistent>
 			<v-card>
 				<v-card-title>
 					<v-toolbar dense dark color="primary">
@@ -27,10 +51,10 @@
 									<v-checkbox v-model="editedItem.visibility" label="Visible"></v-checkbox>
 								</v-flex>
 								<v-flex class="quarter_line">
-									<v-text-field v-model="editedItem.firstName" :rules="[rules.required]" label="First Name" required></v-text-field>
+									<v-text-field v-model="editedItem.firstName" :rules="[rules.required, rules.name]" label="First Name" required></v-text-field>
 								</v-flex>
 								<v-flex class="quarter_line">
-									<v-text-field v-model="editedItem.lastName" :rules="[rules.required]" label="Last Name" required></v-text-field>
+									<v-text-field v-model="editedItem.lastName" :rules="[rules.required, rules.name]" label="Last Name" required></v-text-field>
 								</v-flex>
 								<v-flex v-if="createUser" class="quarter_line">
 									<v-text-field v-model="editedItem.username" :rules="[rules.required, rules.username]" label="Username" required></v-text-field>
@@ -47,7 +71,7 @@
 										Birthdate: {{ editedItem.birthday | formatDate }}
 									</v-card-text>
 									<v-flex v-if="date">
-										<v-date-picker v-model="editedItem.birthday" width="200"></v-date-picker>
+										<v-date-picker v-model="editedItem.birthday" width="450"></v-date-picker>
 									</v-flex>
 								</v-flex>
 								<v-flex class="quarter_line">
@@ -59,23 +83,23 @@
 								<v-flex class="quarter_line">
 									<v-text-field v-model="editedItem.phone" label="Phone" prepend-icon="phone" mask="#########"></v-text-field>
 								</v-flex>
-								<v-flex v-for="nationality in editedItem.nationality" :key="nationality.abbr" class="quarter_line">
-									<v-select :items="languages" :placeholder="nationality.name" v-model="editedItem.nationality" label="Nationality" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+								<v-flex class="quarter_line">
+									<v-select :items="languages" v-model="editedItem.nationality" label="Nationality" item-text="name" item-value="languages" multiple></v-select>
 								</v-flex>
-								<v-flex v-for="nativeLanguage in editedItem.nativeLanguage" :key="nativeLanguage.abbr" class="quarter_line">
-									<v-select :items="languages" :placeholder="nativeLanguage.name" v-model="editedItem.nativeLanguage" label="Native Language" class="input-group--focused" item-text="name" item-value="languages"></v-select>
+								<v-flex class="quarter_line">
+									<v-select :items="languages" v-model="editedItem.nativeLanguage" label="Native Language" item-text="name" item-value="languages" multiple></v-select>
 								</v-flex>
 								<v-flex class="quarter_line">
 									<v-select :items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" item-text="name" item-value="languages" autocomplete multiple></v-select>
 								</v-flex>
 								<v-flex class="quarter_line">
-									<v-select :items="systemLanguages" v-model="editedItem.systemLanguage" label="System Language" class="input-group--focused" item-text="name" item-value="languages" disabled></v-select>
+									<v-select :items="systemLanguages" v-model="editedItem.systemLanguage" label="System Language" item-text="name" item-value="languages" disabled></v-select>
 								</v-flex>
 								<v-flex class="half_line">
 									<v-select :items="staffSkills" v-model="editedItem.skills" label="Skills" item-text="name" item-value="staffSkills" autocomplete multiple></v-select>
 								</v-flex>
 								<v-flex class="half_line">
-									<v-select :items="status" v-model="editedItem.status" label="Status" class="input-group--focused"></v-select>
+									<v-select :items="status" v-model="editedItem.status" label="Status"></v-select>
 								</v-flex>
 								<v-flex class="full_line">
 									<v-text-field v-model="editedItem.description" label="Description" multi-line></v-text-field>
@@ -95,11 +119,21 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
-		<v-data-table :headers="columns" :items="rows" item-key="firstName" expand>
+		<!-- Users Datatable -->
+		<v-data-table :headers="columns" :items="rows" :pagination.sync="pagination" :search="search" item-key="firstName" expand>
+			<template slot="headers" slot-scope="props">
+				<tr>
+					<th v-for="header in props.headers" v-if="header.value != 'lastName'" :key="header.text" :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']" style="text-align:left;" @click="changeSort(header.value)">
+						<span v-if="header.value != 'gender'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'gender'"><v-icon style="opacity: 1;" medium title="Gender">mdi-gender-male-female</v-icon></span>
+						<v-icon v-if="header.sortable != false" small>arrow_upward</v-icon>
+					</th>
+				</tr>
+			</template>
 			<template slot="items" slot-scope="props">
 				<tr>
 					<!-- Show Details Column -->
-					<td >
+					<td id="columnDetails">
 						<v-icon v-if="props.expanded" title="Hide" class="opc" @click="props.expanded = !props.expanded">keyboard_arrow_up</v-icon>
 						<v-icon v-else title="Show More" class="opc" @click="props.expanded = !props.expanded">keyboard_arrow_down</v-icon>
 					</td>
@@ -111,16 +145,45 @@
 					<td v-else>
 						<v-icon color="red darken-2" title="Inactive">cancel</v-icon>
 					</td>
-					<td>{{ props.item.firstName }} {{ props.item.lastName }}</td>
-					<td>
-						<v-icon v-if="props.item.gender == 'Male'" title="Male">mdi-gender-male</v-icon>
-						<v-icon v-if="props.item.gender == 'Female'" title="Female">mdi-gender-female</v-icon>
-						<v-icon v-if="props.item.gender == 'Unknown'" title="Unknown">remove</v-icon>
+					<td id="columnName">
+						<v-edit-dialog lazy>
+							<div>{{ props.item.firstName }} {{ props.item.lastName }}</div>
+							<v-card slot="input" flat>
+								<v-card-text>
+									<v-text-field slot="input" v-model="props.item.firstName" label="First Name" autofocus></v-text-field>
+									<v-text-field slot="input" v-model="props.item.lastName" label="Last Name"></v-text-field>
+									<v-btn slot="input" color="blue darken-1" flat block @click.native="editUser(props.item)">
+										Save
+										<v-icon right>backup</v-icon>
+									</v-btn>
+								</v-card-text>
+							</v-card>
+						</v-edit-dialog>
 					</td>
-					<td>{{ props.item.birthday | formatDate }}</td>
-					<td><span v-for="nationality in props.item.nationality" :key="nationality.abbr"><flag :title="nationality.name" :iso="nationality.abbr" class="flags_skills border"/> {{ nationality.name }}</span></td>
+					<td id="columnGender">
+						<v-edit-dialog lazy>
+							<div><v-icon v-if="props.item.gender == 'Male'" title="Male">mdi-gender-male</v-icon>
+								<v-icon v-if="props.item.gender == 'Female'" title="Female">mdi-gender-female</v-icon>
+							<v-icon v-if="props.item.gender == 'Unknown'" title="Unknown">remove</v-icon></div>
+							<v-card slot="input" flat>
+								<v-card-text style="padding:0px;">
+									<v-btn slot="input" icon flat title="Male" @click="props.item.gender='Male'; editUser(props.item)">
+										<v-icon medium title="Male">mdi-gender-male</v-icon>
+									</v-btn>
+									<v-btn slot="input" icon flat title="Female" @click="props.item.gender='Female'; editUser(props.item)">
+										<v-icon medium title="Female">mdi-gender-female</v-icon>
+									</v-btn>
+									<v-btn slot="input" icon flat title="Unknown" @click="props.item.gender='Unknown'; editUser(props.item)">
+										<v-icon medium title="Unknown">remove</v-icon>
+									</v-btn>
+								</v-card-text>
+							</v-card>
+						</v-edit-dialog>
+					</td>
+					<td id="columnBirthdate">{{ props.item.birthday | formatDate }}</td>
+					<td id="columnNationality"><span v-for="nationality in props.item.nationality" :key="nationality.abbr"><flag :title="nationality.name" :iso="nationality.abbr" class="flags_skills border"/> {{ nationality.name }}</span></td>
 					<td><span v-for="language in props.item.spokenLanguage" :key="language.abbr"><flag :title="language.name" :iso="language.abbr" class="flags_skills border"/></span></td>
-					<td><span v-for="skill in props.item.skills" :key="skill.name"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
+					<td id="columnSkills"><span v-for="skill in props.item.skills" :key="skill.name"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
 					<td v-if="props.item.status == 'Available'">
 						<v-icon title="Available">done</v-icon>
@@ -144,11 +207,11 @@
 						<v-icon title="Non Visible">visibility_off</v-icon>
 					</td>
 
-					<!-- Options Column -->
-					<td>
+					<!-- Actions Column -->
+					<td id="columnActions">
 						<!-- <v-icon v-on:click="addItem(props.item)" title="Adicionar" class="opc">add_box</v-icon>--> <!-- add, add circle, add circle outline, delete sweep, room(localização), location on-->
-						<v-icon title="Edit" class="opc" @click="editItem(props.item)">create</v-icon>
-						<v-icon title="Delete" class="opc" @click="delItem(props.item)">delete</v-icon>
+						<v-icon title="Edit" class="opc" @click="editItem(props.item); openUserForm()">create</v-icon>
+						<v-icon title="Delete" class="opc" @click="deleteAlert = true; deleteItem = props.item">delete</v-icon>
 					</td>
 				</tr>
 
@@ -189,6 +252,9 @@
 				</v-container>-->
 				</td>
 			</template>
+			<v-alert slot="no-results" :value="true" color="error" icon="warning">
+				Your search for "{{ search }}" found no results.
+			</v-alert>
 		</v-data-table>
 	</v-app>
 </template>
@@ -200,16 +266,26 @@ export default {
 		return {
 			title: 'Users Management Demo',
 			//Variable responsible for showing the User Form
-			dialog : false,
+			userForm : false,
 			//Variable responsible for keeping track of adding User
 			createUser: true,
 			//Variable responsible for showing DatePicker
 			date: false,
+			//Datatable Pagination Variable
+			pagination: {
+				sortBy: 'firstName'
+			},
+			//Variable responsible for warning delete alert
+			deleteAlert: false,
+			//Search parameter
+			search: '',
 			//Set of rules within User Form
 			rules: {
 				required: value => value !== undefined && value.trim().length > 0 || 'Required',
 				email: value => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'E-mail must be valid',
-				username: value => /^([\w.-]+)*$/.test(value) || 'Username must be valid. Special characters available are [period, underscore and hyphen]'
+				username: value => /^([\w.-]+)*$/.test(value) || 'Username must be valid. Special characters available are [period, underscore and hyphen]',
+				name: value => /^[a-zA-Z záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]*$/.test(value) || 'Name must be valid.'
+
 			},
 			gender:['Male','Female','Unknown'],
 			status:['Available', 'Assigned', 'Suspended', 'Inactive'],
@@ -219,18 +295,18 @@ export default {
 			columns: [
 				{text: '', value: 'details', type: 'boolean', sortable: false},
 				{text: 'Active', value: 'active', type: 'boolean'},
-				{text: 'Name', value: 'name', type: 'text', width: '17%'},
+				{text: 'Name', value: 'firstName', type: 'text'},
+				{value: 'lastName', type:'text'},
 				{text: 'Gender', value: 'gender', type: 'text'},
 				{text: 'Birthdate', value: 'birthday', type: 'date'},
-				{text: 'Nationality', value: 'nationality', type: 'array', width: '14%'},
+				{text: 'Nationality', value: 'nationality', type: 'array'},
 				{text: 'Spoken Languages', value: 'spokenLanguage', type: 'array'},
-				{text: 'Skills', value: 'skills', width: '18%', type: 'array'},
+				{text: 'Skills', value: 'skills', type: 'array'},
 				{text: 'Status', value: 'status', type: 'text'},
 				{text: 'Visible', value: 'visibility', type: 'boolean'},
-				{text: 'Actions', value: 'opc', width: '12%', sortable: false}
+				{text: 'Actions', value: 'actions', sortable: false}
 			],
-			rows: [
-			],
+			rows: [],
 			editedItem: {
 				_id: null,
 				firstName: '',
@@ -251,6 +327,7 @@ export default {
 				username: '',
 				visibility: true
 			},
+			deleteItem:{},
 			editedIndex: null
 		};
 	},
@@ -272,13 +349,22 @@ export default {
 			this.$refs.profile_pic.outerHTML = '';
 			this.$refs.avatar.innerText = 'person';
 		},
+		changeSort (column) {
+			if (this.pagination.sortBy === column) {
+				this.pagination.descending = !this.pagination.descending;
+			} else {
+				this.pagination.sortBy = column;
+				this.pagination.descending = false;
+			}
+		},
 		//Get Users BD
 		getUsers() {
 			this.$http.get('/users')
 				.then(response => {
 					this.rows.length = 0;
 					response.data.forEach(user => {
-						user.birthday = user.birthday.split('T')[0];
+						if(user.birthday){
+							user.birthday = user.birthday.split('T')[0];}
 						this.rows.push(user);
 					});
 				});
@@ -296,12 +382,14 @@ export default {
 					console.log(error);
 				});
 		},
-		editUser() {
-			this.$http.put('/users/' + this.editedItem._id, this.editedItem)
+		editUser(user) {
+			this.$http.put('/users/' + user._id, user)
 				.then(response => {
 					console.log('User updated', response.data);
 					this.$emit('dismiss', response.data);
-					Object.assign(this.rows[this.editedIndex], response.data);
+					if(this.editedIndex) {
+						Object.assign(this.rows[this.editedIndex], response.data);
+					}
 				})
 				.catch(error => {
 					console.log(error);
@@ -314,33 +402,36 @@ export default {
 			this.editedIndex = this.rows.indexOf(user);
 			this.editedItem = Object.assign({}, user);
 			this.createUser = false;
-			this.dialog = true;
+			//this.userForm = true;
+		},
+		openUserForm: function(){
+			this.userForm = true;
 		},
 		delItem: function(user){
 			//Call Delete User
 			const index = user._id;
 			const index_row = this.rows.indexOf(user);
 			console.log('Request to delete user', index);
-			var conf = confirm('Are you sure you want to delete this user?');
-			if (conf) {
-				this.rows.splice(index_row, 1);
-				this.$http.delete('/users/' + index)
-					.then(response => {
-						console.log('User deleted', response);
-						this.$emit('dismiss', index);
-					})
-					.catch(error => {
-						console.log(error);
+			this.rows.splice(index_row, 1);
+			this.$http.delete('/users/' + index)
+				.then(response => {
+					console.log('User deleted', response);
+					this.deleteItem = {};
+					this.$emit('dismiss', index);
+				})
+				.catch(error => {
+					console.log(error);
 					//this.saving = false;
 					//this.errorHandler(error);
-					});
-			}
+				});
 		},
 		close () {
-			this.dialog = false;
+			this.userForm = false;
 			this.createUser = true;
 			setTimeout(() => {
 				this.editedItem = Object.assign({}, null);
+				this.editedItem.nationality = [];
+				this.editedItem.nativeLanguage = [];
 				this.editedItem.spokenLanguage = [];
 				this.editedItem.skills = [];
 				this.editedIndex = null;
@@ -356,7 +447,7 @@ export default {
 					this.postUser();
 				} else {
 					//Call Edit User
-					this.editUser();
+					this.editUser(this.editedItem);
 				}
 				this.close();
 			}
@@ -366,6 +457,31 @@ export default {
 </script>
 
 <style scoped>
+#columnDetails{
+	max-width: 20px;
+}
+#columnName{
+	min-width: 200px;
+}
+#columnGender{
+	max-width: 20px;
+}
+#columnBirthdate{
+	min-width: 110px;
+}
+#columnNationality{
+	min-width: 170px;
+}
+#columnSkills{
+	min-width: 120px;
+}
+#columnActions{
+	min-width: 100px;
+}
+.warningAlert{
+background-color: #FFC107;
+color:white;
+}
 .close {
 
 }

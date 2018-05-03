@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<!-- Alert Dialog -->
+		<!-- Alert Delete Dialog -->
 		<v-dialog v-model="deleteAlert" max-width="450">
 			<v-card class="warningAlert">
 				<v-icon style="float:left; margin-top:10px; margin-left:10px;" large>priority_high</v-icon>
@@ -13,9 +13,19 @@
 			</v-card>
 		</v-dialog>
 
-		<v-toolbar dense>
+		<v-toolbar dense style="padding-top:15px;padding-bottom:5px;">
 			<v-btn color="primary" dark class="mb-2" @click="userForm = !userForm">New User</v-btn>
-			<v-spacer></v-spacer><v-spacer></v-spacer><v-spacer></v-spacer>
+			<v-text-field ref="add_json" v-model="jsonName" label="Select JSON File" prepend-icon="attach_file" @click="pickJSONFile"></v-text-field>
+			<input
+				ref="json"
+				type="file"
+				style="display: none"
+				accept=".json"
+				@change="onJSONFilePicked"
+			>
+			<v-btn :disabled="!jsonName" color="primary" dark class="mb-2" @click="createJSON()"><v-icon>add_box</v-icon></v-btn>
+
+			<v-spacer></v-spacer><v-spacer></v-spacer>
 			<v-text-field
 				v-model="search"
 				append-icon="search"
@@ -42,7 +52,7 @@
 				</v-card-title>
 				<v-card-text>
 					<v-container grid-list-md>
-						<v-form ref="form" lazy-validation>
+						<v-form ref="form" v-model="valid" lazy-validation>
 							<v-layout wrap>
 								<v-flex class="half_line">
 									<v-checkbox v-model="editedItem.active" label="Active"></v-checkbox>
@@ -75,10 +85,7 @@
 									</v-flex>
 								</v-flex>
 								<v-flex class="quarter_line">
-									Gender:
-									<v-radio-group v-model="editedItem.gender">
-										<v-radio v-for="n in gender" :key="n" :label="`${n}`" :value="n"></v-radio>
-									</v-radio-group>
+									<v-select :items="gender" v-model="editedItem.gender" label="Gender"></v-select>
 								</v-flex>
 								<v-flex class="quarter_line">
 									<v-text-field v-model="editedItem.phone" label="Phone" prepend-icon="phone" mask="#########"></v-text-field>
@@ -102,17 +109,27 @@
 									<v-select :items="status" v-model="editedItem.status" label="Status"></v-select>
 								</v-flex>
 								<v-flex class="full_line">
-									<v-text-field v-model="editedItem.description" label="Description" multi-line></v-text-field>
+									<v-text-field v-model="editedItem.description" label="Description" rows="3" multi-line></v-text-field>
 								</v-flex>
-								<v-flex class="half_line">
-								</v-flex>
+								<!--
+								<v-flex class="quarter_line">
+								<img v-if="imageUrl" :src="imageUrl" height="150"/>
+								<v-text-field v-model="imageName" label="Select Image" prepend-icon="attach_file" @click="pickFile"></v-text-field>
+								<input
+								ref="image"
+								type="file"
+								style="display: none"
+								accept="image/*"
+								@change="onFilePicked"
+								>
+							</v-flex> -->
 							</v-layout>
 						</v-form>
 					</v-container>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
-					<v-btn color="blue darken-1" flat @click.native="save">
+					<v-btn :disabled="!valid" color="blue darken-1" flat @click.native="save">
 						Save
 						<v-icon right>backup</v-icon>
 					</v-btn>
@@ -123,7 +140,7 @@
 		<v-data-table :headers="columns" :items="rows" :pagination.sync="pagination" :search="search" item-key="firstName" expand>
 			<template slot="headers" slot-scope="props">
 				<tr>
-					<th v-for="header in props.headers" v-if="header.value != 'lastName'" :key="header.text" :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']" style="text-align:left;" @click="changeSort(header.value)">
+					<th v-for="header in props.headers" v-if="header.value != 'lastName'" :key="header.text" :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']" style="text-align:left; padding:5px;" @click="changeSort(header.value)">
 						<span v-if="header.value != 'gender'">{{ header.text }}</span>
 						<span v-else-if="header.value == 'gender'"><v-icon style="opacity: 1;" medium title="Gender">mdi-gender-male-female</v-icon></span>
 						<v-icon v-if="header.sortable != false" small>arrow_upward</v-icon>
@@ -131,7 +148,7 @@
 				</tr>
 			</template>
 			<template slot="items" slot-scope="props">
-				<tr>
+				<tr class="primaryTable">
 					<!-- Show Details Column -->
 					<td id="columnDetails">
 						<v-icon v-if="props.expanded" title="Hide" class="opc" @click="props.expanded = !props.expanded">keyboard_arrow_up</v-icon>
@@ -185,25 +202,25 @@
 					<td><span v-for="language in props.item.spokenLanguage" :key="language.abbr"><flag :title="language.name" :iso="language.abbr" class="flags_skills border"/></span></td>
 					<td id="columnSkills"><span v-for="skill in props.item.skills" :key="skill.name"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
-					<td v-if="props.item.status == 'Available'">
+					<td v-if="props.item.status == 'Available'" id="columnStatus">
 						<v-icon title="Available">done</v-icon>
 					</td>
-					<td v-else-if="props.item.status == 'Assigned'">
+					<td v-else-if="props.item.status == 'Assigned'" id="columnStatus">
 						<v-icon title="Assigned">spellcheck</v-icon>
 					</td>
-					<td v-else-if="props.item.status == 'Suspended'">
+					<td v-else-if="props.item.status == 'Suspended'" id="columnStatus">
 						<v-icon title="Suspended">not_interested</v-icon>
 					</td>
-					<td v-else-if="props.item.status == 'Inactive'">
+					<td v-else-if="props.item.status == 'Inactive'" id="columnStatus">
 						<v-icon title="Inactive">error</v-icon>
 					</td>
 					<td v-else></td>
 
 					<!-- Visibility Column -->
-					<td v-if="props.item.visibility">
+					<td v-if="props.item.visibility" id="columnVisibility">
 						<v-icon title="Visible">visibility</v-icon>
 					</td>
-					<td v-else>
+					<td v-else id="columnVisibility">
 						<v-icon title="Non Visible">visibility_off</v-icon>
 					</td>
 
@@ -260,6 +277,7 @@
 </template>
 
 <script>
+//import json from '../assets/data.json';
 export default {
 	name: 'Users',
 	data () {
@@ -279,6 +297,13 @@ export default {
 			deleteAlert: false,
 			//Search parameter
 			search: '',
+			//Variable responsible for enabling save button (User Form)
+			valid: false,
+			imageName: '',
+			imageUrl: '',
+			imageFile: '',
+			jsonName: '',
+			jsonFile: '',
 			//Set of rules within User Form
 			rules: {
 				required: value => value !== undefined && value.trim().length > 0 || 'Required',
@@ -327,6 +352,26 @@ export default {
 				username: '',
 				visibility: true
 			},
+			jsonItem: {
+				_id: null,
+				firstName: '',
+				lastName: '',
+				active: false,
+				gender: '',
+				birthday: '',
+				phone: '',
+				email: '',
+				photo: '',
+				description: '',
+				nationality: [],
+				skills: [],
+				nativeLanguage: [],
+				spokenLanguage: [],
+				systemLanguage: [],
+				status: '',
+				username: '',
+				visibility: true
+			},
 			deleteItem:{},
 			editedIndex: null
 		};
@@ -345,7 +390,6 @@ export default {
 		},
 		//Profile Image Handler
 		imageLoadOnError () {
-			console.log(this.$refs);
 			this.$refs.profile_pic.outerHTML = '';
 			this.$refs.avatar.innerText = 'person';
 		},
@@ -356,6 +400,103 @@ export default {
 				this.pagination.sortBy = column;
 				this.pagination.descending = false;
 			}
+		},
+		//Pick Image File, User Form
+		pickFile () {
+			this.$refs.image.click ();
+		},
+		onFilePicked (e) {
+			const files = e.target.files;
+			if(files[0] !== undefined) {
+				this.imageName = files[0].name;
+				if(this.imageName.lastIndexOf('.') <= 0) {
+					return;
+				}
+				const fr = new FileReader ();
+				fr.readAsDataURL(files[0]);
+				fr.addEventListener('load', () => {
+					this.imageUrl = fr.result;
+					this.imageFile = files[0]; // this is an image file that can be sent to server...
+					this.editedItem.photo = this.imageFile;
+					console.log(files[0]);
+					console.log(this.imageFile);
+					console.log(this.editedItem.photo);
+				});
+			} else {
+				this.imageName = '';
+				this.imageFile = '';
+				this.imageUrl = '';
+			}
+		},
+		pickJSONFile () {
+			this.$refs.json.click ();
+		},
+		onJSONFilePicked (e) {
+			const files = e.target.files;
+			if(files[0].type === 'application/json'){
+				this.$refs.add_json.label = 'Select JSON File';
+				const files = e.target.files;
+				if(files[0] !== undefined) {
+					this.jsonName = files[0].name;
+					if(this.jsonName.lastIndexOf('.') <= 0) {
+						return;
+					}
+					var file = files[0];
+					var start =  0;
+					var stop = file.size - 1;
+					const fr = new FileReader ();
+
+					var blob = file.slice(start, stop + 1);
+					fr.readAsBinaryString(blob);
+					fr.onload = (function(e) {
+						//var json = JSON.parse(e.target.result);
+						localStorage.setItem('json', e.target.result);
+					});
+				}else {
+					console.log('erase');
+					this.jsonName = '';
+					this.jsonFile = '';
+				}
+			}else{
+				this.$refs.add_json.label = 'Insert Valid File';
+			}
+		},
+		createJSON(){
+			var aux = localStorage.getItem('json');
+			localStorage.removeItem('json');
+			this.jsonFile = JSON.parse(aux);
+			for (var i = 0; i < this.jsonFile.length; i++) {
+				this.jsonItem.firstName = this.jsonFile[i].firstName;
+				this.jsonItem.lastName = this.jsonFile[i].lastName;
+				this.jsonItem.email = this.jsonFile[i].email;
+				this.jsonItem.username = this.jsonFile[i].username;
+				this.jsonItem.active = this.jsonFile[i].active;
+				this.jsonItem.gender = this.jsonFile[i].gender;
+				this.jsonItem.birthday = this.jsonFile[i].birthday;
+				this.jsonItem.phone = this.jsonFile[i].phone;
+				this.jsonItem.photo = this.jsonFile[i].photo;
+				this.jsonItem.description = this.jsonFile[i].description;
+				this.jsonItem.nationality = this.jsonFile[i].nationality;
+				this.jsonItem.skills = this.jsonFile[i].skills;
+				this.jsonItem.nativeLanguage = this.jsonFile[i].nativeLanguage;
+				this.jsonItem.spokenLanguage = this.jsonFile[i].spokenLanguage;
+				this.jsonItem.systemLanguage = this.jsonFile[i].systemLanguage;
+				this.jsonItem.status = this.jsonFile[i].status;
+				this.jsonItem.visibility = this.jsonFile[i].visibility;
+				this.jsonItem._id = this.mongoObjectId();
+				this.$http.post('/users', this.jsonItem)
+					.then(response => {
+						console.log('User created', response.data);
+						this.$emit('dismiss', response.data);
+						this.rows.push(response.data);
+					})
+					.catch(error => {
+					//this.errorHandler(error);
+						console.log(error);
+					});
+				this.jsonItem = {};
+			}
+			this.jsonFile = '';
 		},
 		//Get Users BD
 		getUsers() {
@@ -370,7 +511,6 @@ export default {
 				});
 		},
 		postUser() {
-
 			this.$http.post('/users', this.editedItem)
 				.then(response => {
 					console.log('User created', response.data);
@@ -378,7 +518,7 @@ export default {
 					this.rows.push(response.data);
 				})
 				.catch(error => {
-				//this.errorHandler(error);
+					//this.errorHandler(error);
 					console.log(error);
 				});
 		},
@@ -393,8 +533,8 @@ export default {
 				})
 				.catch(error => {
 					console.log(error);
-				//this.saving = false;
-				//this.errorHandler(error);
+					//this.saving = false;
+					//this.errorHandler(error);
 				});
 		},
 		editItem: function(user){
@@ -434,6 +574,10 @@ export default {
 				this.editedItem.nativeLanguage = [];
 				this.editedItem.spokenLanguage = [];
 				this.editedItem.skills = [];
+				this.editedItem.photo = '';
+				this.imageName = '';
+				this.imageFile = '';
+				this.imageUrl = '';
 				this.editedIndex = null;
 			}, 500);
 		},
@@ -457,14 +601,20 @@ export default {
 </script>
 
 <style scoped>
+.primaryTable > td{
+	padding-left:5px !important;
+}
 #columnDetails{
 	max-width: 20px;
+	padding-left:24px !important;
 }
 #columnName{
 	min-width: 200px;
 }
 #columnGender{
 	max-width: 20px;
+	padding-left:5px;
+	padding-right:5px;
 }
 #columnBirthdate{
 	min-width: 110px;
@@ -475,12 +625,22 @@ export default {
 #columnSkills{
 	min-width: 120px;
 }
+#columnStatus{
+	max-width: 20px;
+	padding-left:5px;
+	padding-right:5px;
+}
+#columnVisibility{
+	max-width: 20px;
+	padding-left:5px;
+	padding-right:5px;
+}
 #columnActions{
 	min-width: 100px;
 }
 .warningAlert{
-background-color: #FFC107;
-color:white;
+	background-color: #FFC107;
+	color:white;
 }
 .close {
 

@@ -3,8 +3,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 var mongoose = require('mongoose');
-
 var usersRouter = require('./routes/users');
+
+//Json file with server ip and port
+var serverData = require('./serverData');
 
 const app = express();
 app.use(morgan('combined'));
@@ -24,5 +26,4 @@ db.once('open', function () {
 	app.db = db;
 });
 
-
-app.listen(process.env.PORT || 8081);
+app.listen(process.env.PORT || serverData.port, serverData.ip || '127.0.0.1');

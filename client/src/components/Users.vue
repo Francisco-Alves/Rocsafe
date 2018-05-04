@@ -13,18 +13,10 @@
 			</v-card>
 		</v-dialog>
 
-		<v-toolbar dense style="padding-top:15px;padding-bottom:5px;">
-			<v-btn color="primary" dark class="mb-2" @click="userForm = !userForm">New User</v-btn>
-			<v-text-field ref="add_json" v-model="jsonName" label="Select JSON File" prepend-icon="attach_file" @click="pickJSONFile"></v-text-field>
-			<input
-				ref="json"
-				type="file"
-				style="display: none"
-				accept=".json"
-				@change="onJSONFilePicked"
-			>
-			<v-btn :disabled="!jsonName" color="primary" dark class="mb-2" @click="createJSON()"><v-icon>add_box</v-icon></v-btn>
-
+		<v-toolbar dense>
+			<v-switch v-model="userAdmin" label="Admin" style="max-width: 100px; padding-top: 25px;"></v-switch>
+			<v-btn v-if="userAdmin" color="primary" dark class="mb-2" @click="userForm = !userForm">New User</v-btn>
+			<v-btn v-if="userAdmin" color="primary" dark class="mb-2" @click="jsonForm = !jsonForm">JSON File</v-btn><!--createJSON()-->
 			<v-spacer></v-spacer><v-spacer></v-spacer>
 			<v-text-field
 				v-model="search"
@@ -136,18 +128,67 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
+		<!--JSON Form Dialog -->
+		<v-dialog v-model="jsonForm" scrollable max-width="500px" persistent>
+			<v-card>
+				<v-card-title>
+					<v-toolbar dense dark color="primary">
+						<span class="headline mx-3"> Add Users </span>
+						<v-spacer></v-spacer>
+						<v-btn class="inline close" icon dark @click.native="closeJsonForm">
+							<v-icon>close</v-icon>
+						</v-btn>
+					</v-toolbar>
+				</v-card-title>
+				<v-card-text>
+					<v-container grid-list-md>
+						<v-form ref="form" v-model="valid" lazy-validation>
+							<v-layout wrap>
+								<v-flex class="half_line">
+									<v-text-field ref="textFieldJson" v-model="jsonName" label="Select JSON File" prepend-icon="attach_file" @click="pickJSONFile"></v-text-field>
+									<input
+										ref="json"
+										type="file"
+										style="display: none"
+										accept=".json"
+										@change="onJSONFilePicked"
+									>
+									<span v-if="!validFile" style="color:red;">Please Select Valid Json File</span>
+								</v-flex>
+							</v-layout>
+						</v-form>
+					</v-container>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn :disabled="!validJson" color="blue darken-1" flat @click.native="createJSON">
+						Add
+						<v-icon right>backup</v-icon>
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 		<!-- Users Datatable -->
 		<v-data-table :headers="columns" :items="rows" :pagination.sync="pagination" :search="search" item-key="firstName" expand>
 			<template slot="headers" slot-scope="props">
 				<tr>
 					<th v-for="header in props.headers" v-if="header.value != 'lastName'" :key="header.text" :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']" style="text-align:left; padding:5px;" @click="changeSort(header.value)">
-						<span v-if="header.value != 'gender'">{{ header.text }}</span>
+						<span v-if="header.value == 'active'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'firstName'">{{ header.text }}</span>
 						<span v-else-if="header.value == 'gender'"><v-icon style="opacity: 1;" medium title="Gender">mdi-gender-male-female</v-icon></span>
+						<span v-else-if="header.value == 'birthday'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'nationality'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'spokenLanguage'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'skills'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'status'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'visibility'">{{ header.text }}</span>
+						<span v-else-if="header.value == 'actions' && userAdmin">{{ header.text }}</span>
+
 						<v-icon v-if="header.sortable != false" small>arrow_upward</v-icon>
 					</th>
 				</tr>
 			</template>
-			<template slot="items" slot-scope="props">
+			<template v-if="userAdmin || (props.item.visibility && !userAdmin)" slot="items" slot-scope="props">
 				<tr class="primaryTable">
 					<!-- Show Details Column -->
 					<td id="columnDetails">
@@ -225,7 +266,7 @@
 					</td>
 
 					<!-- Actions Column -->
-					<td id="columnActions">
+					<td v-if="userAdmin" id="columnActions">
 						<!-- <v-icon v-on:click="addItem(props.item)" title="Adicionar" class="opc">add_box</v-icon>--> <!-- add, add circle, add circle outline, delete sweep, room(localização), location on-->
 						<v-icon title="Edit" class="opc" @click="editItem(props.item); openUserForm()">create</v-icon>
 						<v-icon title="Delete" class="opc" @click="deleteAlert = true; deleteItem = props.item">delete</v-icon>
@@ -304,6 +345,10 @@ export default {
 			imageFile: '',
 			jsonName: '',
 			jsonFile: '',
+			jsonForm: false,
+			validJson: false,
+			validFile: true,
+			userAdmin: true,
 			//Set of rules within User Form
 			rules: {
 				required: value => value !== undefined && value.trim().length > 0 || 'Required',
@@ -333,26 +378,6 @@ export default {
 			],
 			rows: [],
 			editedItem: {
-				_id: null,
-				firstName: '',
-				lastName: '',
-				active: false,
-				gender: '',
-				birthday: '',
-				phone: '',
-				email: '',
-				photo: '',
-				description: '',
-				nationality: [],
-				skills: [],
-				nativeLanguage: [],
-				spokenLanguage: [],
-				systemLanguage: [],
-				status: '',
-				username: '',
-				visibility: true
-			},
-			jsonItem: {
 				_id: null,
 				firstName: '',
 				lastName: '',
@@ -433,32 +458,30 @@ export default {
 		},
 		onJSONFilePicked (e) {
 			const files = e.target.files;
-			if(files[0].type === 'application/json'){
-				this.$refs.add_json.label = 'Select JSON File';
-				const files = e.target.files;
-				if(files[0] !== undefined) {
-					this.jsonName = files[0].name;
-					if(this.jsonName.lastIndexOf('.') <= 0) {
-						return;
-					}
-					var file = files[0];
-					var start =  0;
-					var stop = file.size - 1;
-					const fr = new FileReader ();
-
-					var blob = file.slice(start, stop + 1);
-					fr.readAsBinaryString(blob);
-					fr.onload = (function(e) {
-						//var json = JSON.parse(e.target.result);
-						localStorage.setItem('json', e.target.result);
-					});
-				}else {
-					console.log('erase');
-					this.jsonName = '';
-					this.jsonFile = '';
+			if(files[0] !== undefined) {
+				this.jsonName = files[0].name;
+				if(this.jsonName.lastIndexOf('.') <= 0) {
+					return;
 				}
+			}
+			if(files[0].type === 'application/json'){
+				var file = files[0];
+				var start =  0;
+				var stop = file.size - 1;
+				const fr = new FileReader ();
+
+				var blob = file.slice(start, stop + 1);
+				fr.readAsBinaryString(blob);
+				fr.onload = (function(e) {
+					//var json = JSON.parse(e.target.result);
+					localStorage.setItem('json', e.target.result);
+				});
+				this.validJson = true;
+				this.validFile = true;
 			}else{
-				this.$refs.add_json.label = 'Insert Valid File';
+				this.jsonFile = '';
+				this.validJson = false;
+				this.validFile = false;
 			}
 		},
 		createJSON(){
@@ -466,25 +489,25 @@ export default {
 			localStorage.removeItem('json');
 			this.jsonFile = JSON.parse(aux);
 			for (var i = 0; i < this.jsonFile.length; i++) {
-				this.jsonItem.firstName = this.jsonFile[i].firstName;
-				this.jsonItem.lastName = this.jsonFile[i].lastName;
-				this.jsonItem.email = this.jsonFile[i].email;
-				this.jsonItem.username = this.jsonFile[i].username;
-				this.jsonItem.active = this.jsonFile[i].active;
-				this.jsonItem.gender = this.jsonFile[i].gender;
-				this.jsonItem.birthday = this.jsonFile[i].birthday;
-				this.jsonItem.phone = this.jsonFile[i].phone;
-				this.jsonItem.photo = this.jsonFile[i].photo;
-				this.jsonItem.description = this.jsonFile[i].description;
-				this.jsonItem.nationality = this.jsonFile[i].nationality;
-				this.jsonItem.skills = this.jsonFile[i].skills;
-				this.jsonItem.nativeLanguage = this.jsonFile[i].nativeLanguage;
-				this.jsonItem.spokenLanguage = this.jsonFile[i].spokenLanguage;
-				this.jsonItem.systemLanguage = this.jsonFile[i].systemLanguage;
-				this.jsonItem.status = this.jsonFile[i].status;
-				this.jsonItem.visibility = this.jsonFile[i].visibility;
-				this.jsonItem._id = this.mongoObjectId();
-				this.$http.post('/users', this.jsonItem)
+				this.editedItem.firstName = this.jsonFile[i].firstName;
+				this.editedItem.lastName = this.jsonFile[i].lastName;
+				this.editedItem.email = this.jsonFile[i].email;
+				this.editedItem.username = this.jsonFile[i].username;
+				this.editedItem.active = this.jsonFile[i].active;
+				this.editedItem.gender = this.jsonFile[i].gender;
+				this.editedItem.birthday = this.jsonFile[i].birthday;
+				this.editedItem.phone = this.jsonFile[i].phone;
+				this.editedItem.photo = this.jsonFile[i].photo;
+				this.editedItem.description = this.jsonFile[i].description;
+				this.editedItem.nationality = this.jsonFile[i].nationality;
+				this.editedItem.skills = this.jsonFile[i].skills;
+				this.editedItem.nativeLanguage = this.jsonFile[i].nativeLanguage;
+				this.editedItem.spokenLanguage = this.jsonFile[i].spokenLanguage;
+				this.editedItem.systemLanguage = this.jsonFile[i].systemLanguage;
+				this.editedItem.status = this.jsonFile[i].status;
+				this.editedItem.visibility = this.jsonFile[i].visibility;
+				this.editedItem._id = this.mongoObjectId();
+				this.$http.post('/users', this.editedItem)
 					.then(response => {
 						console.log('User created', response.data);
 						this.$emit('dismiss', response.data);
@@ -494,9 +517,17 @@ export default {
 					//this.errorHandler(error);
 						console.log(error);
 					});
-				this.jsonItem = {};
+				this.editedItem = {};
 			}
 			this.jsonFile = '';
+			this.closeJsonForm();
+		},
+		closeJsonForm(){
+			this.jsonForm = false;
+			setTimeout(() => {
+				this.jsonName = '';
+				this.jsonFile = '';
+			}, 500);
 		},
 		//Get Users BD
 		getUsers() {

@@ -60,8 +60,9 @@ var userSchema = new Schema ({
 		//unique: true
 	},
 	photo: {
-		data: Buffer,
-		contentType: String,
+		type: String,
+		//data: Buffer,
+		//contentType: String,
 		required: false
 	},
 	description:{

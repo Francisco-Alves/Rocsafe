@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 var mongoose = require('mongoose');
 var usersRouter = require('./routes/users');
+var missionsRouter = require('./routes/missions');
 
 //Json file with server ip and port
 var serverData = require('./serverData');
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use('/users', usersRouter);
+app.use('/missions', missionsRouter);
 
 mongoose.connect('mongodb://test:test@ds229909.mlab.com:29909/rocsafe');
 mongoose.Promise = global.Promise;

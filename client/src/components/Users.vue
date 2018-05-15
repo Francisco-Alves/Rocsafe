@@ -16,9 +16,9 @@
 		<v-toolbar dense>
 			<v-switch v-model="userAdmin" label="Admin" style="max-width: 100px; padding-top: 25px;"></v-switch>
 			<v-btn v-if="userAdmin" color="primary" dark class="mb-2" @click="userForm = !userForm">New User</v-btn>
-			<v-btn v-if="userAdmin" color="primary" dark class="mb-2" @click="jsonForm = !jsonForm">JSON File</v-btn>
-			<v-spacer></v-spacer><v-spacer></v-spacer>
-			<v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
+			<v-btn v-if="userAdmin" color="primary" dark class="mb-2" @click="jsonForm = !jsonForm">Upload Users</v-btn>
+			<v-spacer></v-spacer>
+			<v-text-field v-model="search" append-icon="search" label="Search" style="max-width:20%;" single-line hide-details></v-text-field>
 		</v-toolbar>
 		<!-- User Form Dialog -->
 		<v-dialog v-model="userForm" scrollable max-width="1000px" persistent>
@@ -41,15 +41,14 @@
 					<v-tabs-items v-model="selectedTab">
 						<v-tab-item :id="`tab-edit`" class="users_tab">
 							<v-card>
-								<v-card-title>
+								<v-card-title v-if="createUser">
 									<v-toolbar dense dark color="primary">
 										<v-avatar size="40">
 											<v-icon x-large>person</v-icon>
 										</v-avatar>
-										<span v-if="createUser" class="headline mx-3"> Add User </span>
-										<span v-else class="headline mx-3"> Edit User </span>
+										<span class="headline mx-3"> Add User </span>
 										<v-spacer></v-spacer>
-										<v-btn v-if="createUser" class="inline close" icon dark @click.native="close">
+										<v-btn class="inline close" icon dark @click.native="close">
 											<v-icon>close</v-icon>
 										</v-btn>
 									</v-toolbar>
@@ -96,9 +95,6 @@
 												</v-flex>
 												<v-flex class="quarter_line">
 													<v-select :items="languages" v-model="editedItem.nationality" label="Nationality" item-text="name" item-value="languages" multiple></v-select>
-												</v-flex>
-												<v-flex class="quarter_line">
-													<v-select :items="languages" v-model="editedItem.nativeLanguage" label="Native Language" item-text="name" item-value="languages" multiple></v-select>
 												</v-flex>
 												<v-flex class="quarter_line">
 													<v-select :items="languages" v-model="editedItem.spokenLanguage" label="Spoken Languages" item-text="name" item-value="languages" autocomplete multiple></v-select>
@@ -225,10 +221,10 @@
 			</v-card>
 		</v-dialog>
 		<!-- Users Datatable -->
-		<v-data-table :headers="columns" :items="rows" :pagination.sync="pagination" :search="search" item-key="firstName" expand>
+		<v-data-table :headers="columns" :items="filteredRows" :pagination.sync="pagination" :search="search" item-key="firstName" expand>
 			<template slot="headers" slot-scope="props">
 				<tr>
-					<th v-for="header in props.headers" v-if="header.value != 'lastName'" :key="header.text" :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']" style="text-align:left; padding:5px;" @click="changeSort(header.value)">
+					<th v-for="header in props.headers" v-if="header.value != 'lastName' && header.value != 'description' && header.value != 'email'" :key="header.text" :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']" style="text-align:left; padding:5px;" @click="changeSort(header.value)">
 						<span v-if="header.value == 'active'">{{ header.text }}</span>
 						<span v-else-if="header.value == 'firstName'">{{ header.text }}</span>
 						<span v-else-if="header.value == 'gender'"><v-icon style="opacity: 1;" medium title="Gender">mdi-gender-male-female</v-icon></span>
@@ -239,12 +235,11 @@
 						<span v-else-if="header.value == 'status'">{{ header.text }}</span>
 						<span v-else-if="header.value == 'visibility'">{{ header.text }}</span>
 						<span v-else-if="header.value == 'actions' && userAdmin">{{ header.text }}</span>
-
 						<v-icon v-if="header.sortable != false" small>arrow_upward</v-icon>
 					</th>
 				</tr>
 			</template>
-			<template v-if="userAdmin || (props.item.visibility && !userAdmin)" slot="items" slot-scope="props">
+			<template slot="items" slot-scope="props">
 				<tr class="primaryTable">
 					<!-- Show Details Column -->
 					<td id="columnDetails">
@@ -276,9 +271,11 @@
 					</td>
 					<td id="columnGender">
 						<v-edit-dialog lazy>
-							<div><v-icon v-if="props.item.gender == 'Male'" title="Male">mdi-gender-male</v-icon>
+							<div>
+								<v-icon v-if="props.item.gender == 'Male'" title="Male">mdi-gender-male</v-icon>
 								<v-icon v-if="props.item.gender == 'Female'" title="Female">mdi-gender-female</v-icon>
-							<v-icon v-if="props.item.gender == 'Unknown'" title="Unknown">remove</v-icon></div>
+								<v-icon v-if="props.item.gender == 'Unknown'" title="Unknown">remove</v-icon>
+							</div>
 							<v-card slot="input" flat>
 								<v-card-text style="padding:0px;">
 									<v-btn slot="input" icon flat title="Male" @click="props.item.gender='Male'; editUser(props.item)">
@@ -299,28 +296,51 @@
 					<td><span v-for="language in props.item.spokenLanguage" :key="language.abbr"><flag :title="language.name" :iso="language.abbr" class="flags_skills border"/></span></td>
 					<td id="columnSkills"><span v-for="skill in props.item.skills" :key="skill.name"><v-icon :title="skill.name">mdi-{{ skill.icon }}</v-icon></span></td>
 					<!-- Status Column -->
-					<td v-if="props.item.status == 'Available'" id="columnStatus">
-						<v-icon title="Available">done</v-icon>
+					<td id="columnStatus">
+						<v-edit-dialog lazy>
+							<div>
+								<v-icon v-if="props.item.status == 'Available'" title="Available">done</v-icon>
+								<v-icon v-if="props.item.status == 'Assigned'" title="Assigned">spellcheck</v-icon>
+								<v-icon v-if="props.item.status == 'Suspended'" title="Suspended">not_interested</v-icon>
+								<v-icon v-if="props.item.status == 'Inactive'" title="Inactive">error</v-icon>
+							</div>
+							<v-card slot="input" flat>
+								<v-card-text style="padding:0px; width:110px;">
+									<v-btn slot="input" icon flat title="Available" @click="props.item.status='Available'; editUser(props.item)">
+										<v-icon medium title="Available">done</v-icon>
+									</v-btn>
+									<v-btn slot="input" icon flat title="Assigned" @click="props.item.status='Assigned'; editUser(props.item)">
+										<v-icon medium title="Assigned">spellcheck</v-icon>
+									</v-btn>
+									<v-btn slot="input" icon flat title="Suspended" @click="props.item.status='Suspended'; editUser(props.item)">
+										<v-icon medium title="Suspended">not_interested</v-icon>
+									</v-btn>
+									<v-btn slot="input" icon flat title="Inactive" @click="props.item.status='Inactive'; editUser(props.item)">
+										<v-icon medium title="Inactive">error</v-icon>
+									</v-btn>
+								</v-card-text>
+							</v-card>
+						</v-edit-dialog>
 					</td>
-					<td v-else-if="props.item.status == 'Assigned'" id="columnStatus">
-						<v-icon title="Assigned">spellcheck</v-icon>
-					</td>
-					<td v-else-if="props.item.status == 'Suspended'" id="columnStatus">
-						<v-icon title="Suspended">not_interested</v-icon>
-					</td>
-					<td v-else-if="props.item.status == 'Inactive'" id="columnStatus">
-						<v-icon title="Inactive">error</v-icon>
-					</td>
-					<td v-else></td>
-
 					<!-- Visibility Column -->
-					<td v-if="props.item.visibility" id="columnVisibility">
-						<v-icon title="Visible">visibility</v-icon>
+					<td id="columnVisibility">
+						<v-edit-dialog lazy>
+							<div>
+								<v-icon v-if="props.item.visibility == true" title="Visible">visibility</v-icon>
+								<v-icon v-if="props.item.visibility == false" title="Non Visible">visibility_off</v-icon>
+							</div>
+							<v-card slot="input" flat>
+								<v-card-text style="padding:0px; width:110px;">
+									<v-btn slot="input" icon flat title="Visible" @click="props.item.visibility = true; editUser(props.item)">
+										<v-icon medium title="Visible">visibility</v-icon>
+									</v-btn>
+									<v-btn slot="input" icon flat title="Non Visible" @click="props.item.visibility = false; editUser(props.item)">
+										<v-icon medium title="Non Visible">visibility_off</v-icon>
+									</v-btn>
+								</v-card-text>
+							</v-card>
+						</v-edit-dialog>
 					</td>
-					<td v-else id="columnVisibility">
-						<v-icon title="Non Visible">visibility_off</v-icon>
-					</td>
-
 					<!-- Actions Column -->
 					<td v-if="userAdmin" id="columnActions">
 						<!-- <v-icon v-on:click="addItem(props.item)" title="Adicionar" class="opc">add_box</v-icon>--> <!-- add, add circle, add circle outline, delete sweep, room(localização), location on-->
@@ -335,9 +355,8 @@
 				<td colspan="11">
 					<v-container class="details">
 						<v-flex class="profile_img">
-							<img v-if="props.item.photo" :src="props.item.photo" style="width:180px;" height="200px"/>
-							<img v-else ref="profile_pic" :src="'https://rocsafe.inov.pt/img/users/' + props.item.username + '.jpg'" style="width:180px;" height="200px" @error="imageLoadOnError()">
-							<v-icon ref="avatar" size="175px"></v-icon>
+							<img v-if="props.item.photo" :src="props.item.photo" style="width:180px;" height="200px"/><!--@error="imageLoadOnError()-->
+							<v-icon v-else size="175px">person</v-icon>
 						</v-flex>
 						<v-flex>
 							<span class="details_content">
@@ -425,6 +444,8 @@ export default {
 				{text: 'Active', value: 'active', type: 'boolean'},
 				{text: 'Name', value: 'firstName', type: 'text'},
 				{value: 'lastName', type:'text'},
+				{value: 'description', type:'text'},
+				{value: 'email', type:'text'},
 				{text: 'Gender', value: 'gender', type: 'text'},
 				{text: 'Birthdate', value: 'birthday', type: 'date'},
 				{text: 'Nationality', value: 'nationality', type: 'array'},
@@ -471,6 +492,11 @@ export default {
 			deleteItem:{},
 			editedIndex: null
 		};
+	},
+	computed:{
+		filteredRows() {
+			return this.rows.filter(i => this.userAdmin || i.visibility);
+		}
 	},
 	mounted () {
 	},
@@ -621,14 +647,15 @@ export default {
 				});
 		},
 		//Get Missions BD
-		getMissions() {
-			this.$http.get('/missions')
+		getMissions(userID) {
+			this.$http.get('/missions/' + userID)
 				.then(response => {
 					this.missionRows.length = 0;
 					response.data.forEach(mission => {
 						this.missionRows.push(mission);
 					});
 				});
+			console.log(userID);
 		},
 		postUser() {
 			var aux = localStorage.getItem('image');
@@ -670,7 +697,7 @@ export default {
 			this.createUser = false;
 
 			//Get User Missions
-			this.getMissions();
+			this.getMissions(user._id);
 		},
 		openUserForm: function(){
 			this.userForm = true;

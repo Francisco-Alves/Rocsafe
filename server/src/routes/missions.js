@@ -4,7 +4,7 @@ var Mission = require('../models/missions.js');
 
 
 // Read mission
-router.get('/:id?', function (req, res) {
+router.get('/:id', function (req, res) {
 	Mission.readMission(req.params.id).
 		then(function (missions) {
 			res.json(missions);

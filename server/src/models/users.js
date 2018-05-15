@@ -101,6 +101,10 @@ var userSchema = new Schema ({
 		type: Boolean,
 		required: true,
 		default: false
+	},
+	missionsList:{
+		type: Array,
+		required: false
 	}
 });
 

@@ -42,6 +42,10 @@ var missionSchema = new Schema ({
 	location:{
 		type: String,
 		required: false
+	},
+	usersList:{
+		type: Array,
+		required: false
 	}
 });
 
@@ -50,15 +54,7 @@ var missionModel = mongoose.model('Mission', missionSchema);
 var readMission = function(id) {
 	return new Promise(function(resolve, reject) {
 		if (id !== undefined) {
-			missionModel.findOne({_id:id}, {__v:0}, function (err, mission) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve(mission);
-				}
-			});
-		} else {
-			missionModel.find({}, {__v:0}, function (err, missions) {
+			missionModel.find({ usersList: id}, {__v:0}, function (err, missions) {
 				if (err) {
 					reject(err);
 				} else {
